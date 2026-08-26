@@ -8,8 +8,20 @@ from typing import Any
 
 from app.core.archive import archive
 from app.core.config import settings
-from app.core.scheduler_engine import SchedulerMode, SmartScanMoEScheduler
+from app.core.scheduler_engine import SmartScanMoEScheduler
 from app.data.emulator import HIGH_THREAT_BANDS, RFEmulator
+
+_COMPASS = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
+
+
+def _compass(deg: float) -> str:
+    idx = int((deg % 360) / 22.5 + 0.5) % 16
+    return _COMPASS[idx]
+
+
+def _range_km(amplitude_db: float) -> float:
+    t = min(1.0, max(0.0, (-amplitude_db - 28.0) / 42.0))
+    return 4.0 + t * 28.0
 
 
 class SimulationRuntime:
@@ -24,6 +36,9 @@ class SimulationRuntime:
         self.total_emissions = 0
         self.intercept_errors_ms: list[float] = []
         self.reward = 0.0
+        self.sweep_ms = settings.sweep_ms
+        self.hostile_spawn = settings.hostile_spawn
+        self.noise_floor = settings.noise_floor
         self.latest: dict[str, Any] = self._empty_payload()
         self._pending_onsets: dict[int, float] = {}
         self.clients: set[Any] = set()
@@ -31,13 +46,13 @@ class SimulationRuntime:
         self._last_xai_key = ""
 
     async def run_loop(self) -> None:
-        period = 1.0 / settings.telemetry_hz
         while True:
             if self.running:
                 self.tick()
             else:
                 self.latest["running"] = False
                 self.latest["timestamp_us"] = int(time.time() * 1_000_000)
+            period = max(0.02, min(0.5, self.sweep_ms / 1000.0))
             await asyncio.sleep(period)
 
     def _empty_payload(self) -> dict[str, Any]:
@@ -51,6 +66,7 @@ class SimulationRuntime:
                     "priority_score": 0.15,
                     "status": "IDLE",
                     "threat_level": "HIGH" if i in HIGH_THREAT_BANDS else "NONE",
+                    "ignored": False,
                 }
             )
         return {
@@ -73,11 +89,28 @@ class SimulationRuntime:
                 "action_taken": "HOLD",
                 "rationale": "Simulation halted. Await operator START.",
             },
+            "session_id": None,
+            "env": {
+                "sweep_ms": getattr(self, "sweep_ms", settings.sweep_ms),
+                "hostile_spawn": getattr(self, "hostile_spawn", settings.hostile_spawn),
+                "noise_floor": getattr(self, "noise_floor", settings.noise_floor),
+                "epsilon": getattr(self.scheduler, "epsilon", settings.epsilon),
+            },
+            "ignored_bands": [],
         }
 
     def reset(self) -> None:
         archive.close()
+        spawn = getattr(self, "hostile_spawn", settings.hostile_spawn)
+        noise = getattr(self, "noise_floor", settings.noise_floor)
+        sweep = getattr(self, "sweep_ms", settings.sweep_ms)
+        epsilon = self.scheduler.epsilon
         self.emulator = RFEmulator()
+        self.emulator.hostile_spawn = spawn
+        self.emulator.noise_floor = noise
+        self.hostile_spawn = spawn
+        self.noise_floor = noise
+        self.sweep_ms = sweep
         mode = self.scheduler.mode
         weights = (
             self.scheduler.eager_weight,
@@ -87,6 +120,8 @@ class SimulationRuntime:
         self.scheduler = SmartScanMoEScheduler()
         self.scheduler.mode = mode
         self.scheduler.eager_weight, self.scheduler.revisit_weight, self.scheduler.aoi_decay_factor = weights
+        self.scheduler.epsilon = epsilon
+        self.scheduler.min_dwell_ticks = max(2, int(280 / max(20.0, sweep)))
         self.hits = 0
         self.misses = 0
         self.false_alarms = 0
@@ -114,6 +149,15 @@ class SimulationRuntime:
         archive.close()
 
     def configure(self, **kwargs: Any) -> None:
+        if "sweep_ms" in kwargs and kwargs["sweep_ms"] is not None:
+            self.sweep_ms = max(20.0, min(500.0, float(kwargs.pop("sweep_ms"))))
+            self.scheduler.min_dwell_ticks = max(2, int(280 / self.sweep_ms))
+        if "hostile_spawn" in kwargs and kwargs["hostile_spawn"] is not None:
+            self.hostile_spawn = max(0.0, min(1.0, float(kwargs.pop("hostile_spawn"))))
+            self.emulator.hostile_spawn = self.hostile_spawn
+        if "noise_floor" in kwargs and kwargs["noise_floor"] is not None:
+            self.noise_floor = max(0.0, min(0.8, float(kwargs.pop("noise_floor"))))
+            self.emulator.noise_floor = self.noise_floor
         self.scheduler.configure(**kwargs)
 
     def _metrics(self) -> dict[str, float | int]:
@@ -197,6 +241,7 @@ class SimulationRuntime:
                     "priority_score": round(decision["priority"][i], 3),
                     "status": status,
                     "threat_level": threat,
+                    "ignored": i in self.scheduler.ignored,
                 }
             )
 
@@ -216,11 +261,20 @@ class SimulationRuntime:
                     "aoa_deg": round(p.aoa_deg, 1),
                     "amplitude_db": round(p.amplitude_db, 1),
                     "emitter_class_id": p.emitter_class_id,
+                    "compass": _compass(p.aoa_deg),
+                    "range_km": round(_range_km(p.amplitude_db), 1),
                 }
                 for p in tracks
             ],
             "explainable_ai_log": xai,
             "session_id": archive.current["id"] if archive.current else None,
+            "env": {
+                "sweep_ms": self.sweep_ms,
+                "hostile_spawn": self.hostile_spawn,
+                "noise_floor": self.noise_floor,
+                "epsilon": self.scheduler.epsilon,
+            },
+            "ignored_bands": sorted(self.scheduler.ignored),
         }
         self.latest = payload
         archive.record(payload, decision["agent"])

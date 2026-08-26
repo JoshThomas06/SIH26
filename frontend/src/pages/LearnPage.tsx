@@ -14,12 +14,12 @@ const STEPS = [
     body: "The globe is a surveillance overview. Capability cards explain Pd, AoI, Δt, coverage, and the C2 cell. Open brief for the full paragraph.",
   },
   {
-    title: "3. Radar",
-    body: "Initiate starts a run session. Pick Open-Loop first, then Smart Scan MARL, and watch Pd / hits diverge. Halt closes the session so Analytics can keep it.",
+    title: "3. Scan console",
+    body: "Initiate starts a run session. Pick Open-Loop first, then Smart Scan MARL, and watch Pd / hits diverge. Halt closes the session so Analytics can keep it. Sweep ms, hostile spawn, and noise floor are live env knobs.",
   },
   {
-    title: "4. How to read the scope",
-    body: "The green arm is the tuner sweep. Stable dots are emitters with a held bearing. Red is a HIGH-threat band (04 / 08 / 13). Tracks linger ~3 s so they stay readable.",
+    title: "4. Two scan views",
+    body: "CRT polar: blips paint only when the rotating beam crosses their AoA, then fade ~5.5 s. Spectrum analyzer: 16-band grid with hop cursor — click to lock, right-click to ignore. Both sit on the same 16 × 500 MHz SIH model.",
   },
   {
     title: "5. Waterfall and matrix",
@@ -47,6 +47,10 @@ const TERMS: { term: string; def: string }[] = [
   { term: "HIGH threat", def: "Hardcoded demo emitters on bands 04, 08, 13 (indices 3, 7, 12): periodic, agile, short-pulse." },
   { term: "FoM", def: "Figures of merit shown in the HUD: Pd, Pfa, Δt, reward, hits, misses." },
   { term: "Reward", def: "Demo score: hits add, misses and non-adjacent hops subtract. Useful for open-loop vs Smart Scan." },
+  { term: "Ignore", def: "Operator mark that skips a sub-band in both linear sweep and Smart Scan (epsilon-greedy still only samples eligible bands)." },
+  { term: "Sweep ms", def: "Receiver hop interval (20–500 ms). Lower covers more ground; the CRT and waterfall stay readable because dwell ticks scale with speed." },
+  { term: "AoA / compass", def: "Angle of arrival. 0° is North. The CRT paints a blip only when the rotating beam crosses that bearing." },
+  { term: "Range km", def: "Amplitude-derived slant-range estimate (stronger pulse → closer). Demonstration geolocation, not GPS." },
 ];
 
 export default function LearnPage() {
@@ -75,7 +79,7 @@ export default function LearnPage() {
 
         <h2 className="mt-10 font-mono text-sm uppercase tracking-[0.3em] text-[#e4e4e7]">Terminology</h2>
         <p className="mt-2 mb-4 text-sm text-[#888]">
-          Open any term for a slightly longer brief. These are the words used on Radar, Analytics, and the MoE log.
+          Open any term for a slightly longer brief. These are the words used on Scan, Analytics, and the MoE log.
         </p>
         <div className="grid gap-2 sm:grid-cols-2">
           {TERMS.map((item) => (

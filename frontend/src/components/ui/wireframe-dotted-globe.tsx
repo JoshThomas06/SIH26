@@ -106,19 +106,32 @@ export default function RotatingEarth({
       return dots;
     };
 
-    const allDots: { lng: number; lat: number }[] = [];
+    const allDots: { lng: number; lat: number; india: boolean }[] = [];
     let landFeatures: { features: GeoFeature[] } | null = null;
+
+    const inIndia = (lng: number, lat: number) => lat >= 8 && lat <= 37.5 && lng >= 68 && lng <= 97.5;
+
+    const THREAT_CORRIDORS: { lng: number; lat: number }[] = [
+      { lng: 66.8, lat: 24.6 },
+      { lng: 67.9, lat: 18.2 },
+      { lng: 70.2, lat: 12.6 },
+      { lng: 88.5, lat: 16.1 },
+      { lng: 91.7, lat: 22.3 },
+      { lng: 77.1, lat: 34.2 },
+    ];
+    const INDIA_ORIGIN: [number, number] = [78.96, 20.59];
 
     const render = () => {
       context.clearRect(0, 0, containerWidth, containerHeight);
       const currentScale = projection.scale();
       const scaleFactor = currentScale / radius;
+      const light = document.documentElement.classList.contains("theme-light");
 
       context.beginPath();
       context.arc(containerWidth / 2, containerHeight / 2, currentScale, 0, 2 * Math.PI);
-      context.fillStyle = "#040404";
+      context.fillStyle = light ? "#b8b8c0" : "#040404";
       context.fill();
-      context.strokeStyle = "#ffffff";
+      context.strokeStyle = light ? "#18181b" : "#ffffff";
       context.lineWidth = 1.4 * scaleFactor;
       context.stroke();
 
@@ -127,7 +140,7 @@ export default function RotatingEarth({
       const graticule = d3.geoGraticule();
       context.beginPath();
       path(graticule());
-      context.strokeStyle = "#ffffff";
+      context.strokeStyle = light ? "#3f3f46" : "#ffffff";
       context.lineWidth = 1 * scaleFactor;
       context.globalAlpha = 0.22;
       context.stroke();
@@ -137,7 +150,7 @@ export default function RotatingEarth({
       landFeatures.features.forEach((feature) => {
         path(feature as d3.GeoPermissibleObjects);
       });
-      context.strokeStyle = "#ffffff";
+      context.strokeStyle = light ? "#18181b" : "#ffffff";
       context.lineWidth = 1 * scaleFactor;
       context.stroke();
 
@@ -151,10 +164,38 @@ export default function RotatingEarth({
           projected[1] <= containerHeight
         ) {
           context.beginPath();
-          context.arc(projected[0], projected[1], 1.2 * scaleFactor, 0, 2 * Math.PI);
-          context.fillStyle = "#999999";
+          context.arc(projected[0], projected[1], (dot.india ? 1.7 : 1.2) * scaleFactor, 0, 2 * Math.PI);
+          context.fillStyle = dot.india ? (light ? "#111827" : "#f4f4f5") : light ? "#71717a" : "#999999";
           context.fill();
         }
+      });
+
+      const origin = projection(INDIA_ORIGIN);
+      if (origin) {
+        context.beginPath();
+        context.arc(origin[0], origin[1], 4.2 * scaleFactor, 0, 2 * Math.PI);
+        context.fillStyle = "#00ff66";
+        context.shadowColor = "#00ff66";
+        context.shadowBlur = 10;
+        context.fill();
+        context.shadowBlur = 0;
+        context.font = `${10 * scaleFactor}px JetBrains Mono, monospace`;
+        context.fillStyle = light ? "#14532d" : "#00ff66";
+        context.fillText("INDIA · ES origin", origin[0] + 8, origin[1] - 6);
+      }
+
+      const pulse = 0.55 + 0.45 * Math.sin(Date.now() / 420);
+      THREAT_CORRIDORS.forEach((pt) => {
+        const projected = projection([pt.lng, pt.lat]);
+        if (!projected) return;
+        context.beginPath();
+        context.arc(projected[0], projected[1], (2.4 + pulse) * scaleFactor, 0, 2 * Math.PI);
+        context.fillStyle = `rgba(255, 42, 109, ${0.35 + pulse * 0.35})`;
+        context.fill();
+        context.beginPath();
+        context.arc(projected[0], projected[1], 1.6 * scaleFactor, 0, 2 * Math.PI);
+        context.fillStyle = "#ff2a6d";
+        context.fill();
       });
     };
 
@@ -166,7 +207,7 @@ export default function RotatingEarth({
         landFeatures = (await response.json()) as { features: GeoFeature[] };
         landFeatures.features.forEach((feature) => {
           generateDotsInPolygon(feature, 16).forEach(([lng, lat]) => {
-            allDots.push({ lng, lat });
+            allDots.push({ lng, lat, india: inIndia(lng, lat) });
           });
         });
         if (!cancelled) {
@@ -187,6 +228,10 @@ export default function RotatingEarth({
 
     const rotate = () => {
       if (!autoRotate) return;
+      if (document.documentElement.dataset.reduceMotion === "true") {
+        render();
+        return;
+      }
       rotation[0] += rotationSpeed;
       projection.rotate(rotation);
       render();
@@ -264,7 +309,7 @@ export default function RotatingEarth({
         </div>
       )}
       <div className="absolute bottom-4 left-4 rounded-md bg-neutral-900 px-2 py-1 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-        Global signal surveillance — drag to rotate • scroll to zoom
+        Global surveillance — India = ES origin (demo) · red = illustrative threat corridors
       </div>
     </div>
   );

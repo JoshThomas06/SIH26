@@ -1,9 +1,21 @@
 import { useEffect, useRef } from "react";
 import { useTacticalStore, type BandState, type PDWIntercept } from "@/store/useTacticalStore";
+import { cn } from "@/lib/utils";
+import { useUiPrefs } from "@/store/useUiPrefs";
 
 const HIGH_MHZ = new Set([2000, 4000, 6500]);
 const SWEEP_STEP = 0.0045;
 const PULSE_MS = 5600;
+const FADE_MS = 5500;
+const BEAM_RAD = 0.14;
+
+type PaintedBlip = {
+  id: number;
+  x: number;
+  y: number;
+  anomaly: boolean;
+  paintedAt: number;
+};
 
 function isAnomaly(pdw: PDWIntercept, bands: BandState[]) {
   const match = bands.find((band) => Math.abs(band.center_freq_mhz - pdw.center_freq_mhz) < 1);
@@ -11,14 +23,28 @@ function isAnomaly(pdw: PDWIntercept, bands: BandState[]) {
   return HIGH_MHZ.has(Math.round(pdw.center_freq_mhz));
 }
 
+function aoaToCanvas(deg: number) {
+  return ((deg - 90) * Math.PI) / 180;
+}
+
+function angAbsDiff(a: number, b: number) {
+  const tau = Math.PI * 2;
+  let d = (a - b) % tau;
+  if (d < 0) d += tau;
+  if (d > Math.PI) d = tau - d;
+  return d;
+}
+
 export function PolarRadarScope() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const sweep = useRef(0);
+  const sweep = useRef(-Math.PI / 2);
+  const painted = useRef<Map<number, PaintedBlip>>(new Map());
   const pdws = useTacticalStore((s) => s.latestPDWs);
   const bands = useTacticalStore((s) => s.bandStates);
   const pdwsRef = useRef(pdws);
   const bandsRef = useRef(bands);
   const connected = useTacticalStore((s) => s.isConnected);
+  const persistCrtDark = useUiPrefs((s) => s.persistCrtDark);
   pdwsRef.current = pdws;
   bandsRef.current = bands;
 
@@ -27,8 +53,8 @@ export function PolarRadarScope() {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    canvas.width = 420;
-    canvas.height = 380;
+    canvas.width = 440;
+    canvas.height = 400;
     let raf = 0;
 
     const draw = () => {
@@ -39,7 +65,7 @@ export function PolarRadarScope() {
       const w = canvas.width;
       const h = canvas.height;
       const cx = w / 2;
-      const cy = h / 2;
+      const cy = h / 2 + 6;
       const radius = 148;
 
       ctx.clearRect(0, 0, w, h);
@@ -54,6 +80,16 @@ export function PolarRadarScope() {
       ctx.arc(cx, cy, radius * 1.32, 0, Math.PI * 2);
       ctx.fill();
 
+      ctx.fillStyle = "rgba(0, 255, 102, 0.55)";
+      ctx.font = "10px JetBrains Mono, monospace";
+      ctx.textAlign = "center";
+      ctx.fillText("N", cx, cy - radius - 10);
+      ctx.fillText("S", cx, cy + radius + 18);
+      ctx.textAlign = "left";
+      ctx.fillText("E", cx + radius + 8, cy + 3);
+      ctx.textAlign = "right";
+      ctx.fillText("W", cx - radius - 8, cy + 3);
+
       ctx.save();
       ctx.beginPath();
       ctx.arc(cx, cy, radius, 0, Math.PI * 2);
@@ -61,7 +97,7 @@ export function PolarRadarScope() {
 
       ctx.strokeStyle = "rgba(0, 255, 102, 0.16)";
       ctx.lineWidth = 1;
-      for (const r of [0.3, 0.6, 1.0]) {
+      for (const r of [0.25, 0.5, 0.75, 1.0]) {
         ctx.beginPath();
         ctx.arc(cx, cy, radius * r, 0, Math.PI * 2);
         ctx.stroke();
@@ -72,6 +108,14 @@ export function PolarRadarScope() {
       ctx.moveTo(cx, cy - radius);
       ctx.lineTo(cx, cy + radius);
       ctx.stroke();
+
+      ctx.fillStyle = "rgba(0, 255, 102, 0.28)";
+      ctx.font = "8px JetBrains Mono, monospace";
+      ctx.textAlign = "left";
+      ctx.fillText("8 km", cx + 6, cy - radius * 0.25 + 3);
+      ctx.fillText("16 km", cx + 6, cy - radius * 0.5 + 3);
+      ctx.fillText("24 km", cx + 6, cy - radius * 0.75 + 3);
+      ctx.fillText("32 km", cx + 6, cy - radius + 10);
 
       for (let i = 0; i < 2; i++) {
         const t = (pulse + i * 0.5) % 1;
@@ -108,27 +152,46 @@ export function PolarRadarScope() {
       ctx.stroke();
 
       const now = Date.now();
+      const seen = new Set<number>();
       for (const pdw of livePdws) {
-        const age = Math.min(1, (now - (pdw.born || now)) / 3200);
-        const ang = (pdw.aoa_deg * Math.PI) / 180;
+        const id = pdw.trackId ?? pdw.pdw_id;
+        seen.add(id);
+        const ang = aoaToCanvas(pdw.aoa_deg);
         const dist = Math.min(1, Math.max(0.12, (pdw.amplitude_db + 100) / 80));
         const x = cx + Math.cos(ang) * radius * dist;
         const y = cy + Math.sin(ang) * radius * dist;
-        const anomaly = isAnomaly(pdw, liveBands);
-        const color = anomaly ? "#ff2a6d" : "#00ff66";
-        ctx.globalAlpha = 1 - age * 0.55;
-        if (anomaly) {
+        if (angAbsDiff(sweep.current, ang) <= BEAM_RAD) {
+          painted.current.set(id, {
+            id,
+            x,
+            y,
+            anomaly: isAnomaly(pdw, liveBands),
+            paintedAt: now,
+          });
+        }
+      }
+
+      for (const [id, blip] of [...painted.current.entries()]) {
+        const age = now - blip.paintedAt;
+        if (age > FADE_MS || (!seen.has(id) && age > FADE_MS * 0.55)) {
+          painted.current.delete(id);
+          continue;
+        }
+        const alpha = Math.max(0, 1 - age / FADE_MS);
+        const color = blip.anomaly ? "#ff2a6d" : "#00ff66";
+        ctx.globalAlpha = alpha;
+        if (blip.anomaly) {
           ctx.beginPath();
-          ctx.arc(x, y, 9, 0, Math.PI * 2);
-          ctx.strokeStyle = "rgba(255, 42, 109, 0.35)";
+          ctx.arc(blip.x, blip.y, 9, 0, Math.PI * 2);
+          ctx.strokeStyle = "rgba(255, 42, 109, 0.45)";
           ctx.lineWidth = 1;
           ctx.stroke();
         }
         ctx.fillStyle = color;
         ctx.shadowColor = color;
-        ctx.shadowBlur = anomaly ? 10 : 6;
+        ctx.shadowBlur = blip.anomaly ? 10 : 6;
         ctx.beginPath();
-        ctx.arc(x, y, anomaly ? 3.2 : 2.3, 0, Math.PI * 2);
+        ctx.arc(blip.x, blip.y, blip.anomaly ? 3.2 : 2.3, 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
         ctx.globalAlpha = 1;
@@ -142,17 +205,17 @@ export function PolarRadarScope() {
   }, []);
 
   return (
-    <div className="relative overflow-visible px-3 pb-2 pt-3">
+    <div className={cn("relative overflow-visible rounded-2xl border border-border px-3 pb-2 pt-3", persistCrtDark ? "crt-persist bg-[#040404]" : "bg-card")}>
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_54%,transparent_0%,transparent_42%,rgba(4,4,4,0.55)_68%,#040404_88%)]" />
       <div className="relative z-10 mb-1 flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-[#a1a1aa]">
-        <span>360° CRT Radar Scope (Phosphor Green View)</span>
+        <span>360° CRT scope · sweep-paint · N-up</span>
         <span className={connected ? "text-[#00ff66]" : "text-[#666]"}>
           {connected ? "System Live" : "Link Down"}
         </span>
       </div>
       <canvas ref={canvasRef} className="relative z-0 mx-auto block bg-transparent" />
       <p className="relative z-10 mt-1 text-center font-mono text-[10px] uppercase tracking-widest text-[#555]">
-        Green = intercept · Red = high-threat anomaly · tracks hold ~3 s
+        Blips paint only when the beam crosses bearing · fade ~5.5 s · green intercept · red HIGH
       </p>
     </div>
   );

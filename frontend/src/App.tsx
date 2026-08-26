@@ -6,7 +6,8 @@ import AnalyticsPage from "@/pages/AnalyticsPage";
 import HomePage from "@/pages/HomePage";
 import LearnPage from "@/pages/LearnPage";
 import LoginPage from "@/pages/LoginPage";
-import RadarPage from "@/pages/RadarPage";
+import ProfilePage from "@/pages/ProfilePage";
+import ScanPage from "@/pages/RadarPage";
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -23,13 +24,14 @@ function AnimatedRoutes() {
           }
         />
         <Route
-          path="/radar"
+          path="/scan"
           element={
             <ProtectedRoute>
-              <RadarPage />
+              <ScanPage />
             </ProtectedRoute>
           }
         />
+        <Route path="/radar" element={<Navigate to="/scan" replace />} />
         <Route
           path="/analytics"
           element={
@@ -43,6 +45,14 @@ function AnimatedRoutes() {
           element={
             <ProtectedRoute>
               <LearnPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
             </ProtectedRoute>
           }
         />

@@ -49,6 +49,8 @@ class RFEmulator:
         self._occ = [False] * num_bands
         self._aoa = [random.uniform(12, 348) for _ in range(num_bands)]
         self._amp = [random.uniform(-62.0, -38.0) for _ in range(num_bands)]
+        self.hostile_spawn = settings.hostile_spawn
+        self.noise_floor = settings.noise_floor
 
     def band_freq(self, index: int) -> float:
         return self.center_freqs[index]
@@ -71,13 +73,16 @@ class RFEmulator:
                 self._hold[i] -= 1
                 continue
             if i == 3:
-                self._set_hold(i, not self._occ[i], on_ticks=18, off_ticks=22)
+                stay_or_start = self._occ[i] or random.random() < (0.35 + 0.55 * self.hostile_spawn)
+                self._set_hold(i, stay_or_start, on_ticks=18, off_ticks=22)
             elif i == 7:
-                self._set_hold(i, not self._occ[i], on_ticks=14, off_ticks=16)
+                stay_or_start = self._occ[i] or random.random() < (0.28 + 0.6 * self.hostile_spawn)
+                self._set_hold(i, stay_or_start, on_ticks=14, off_ticks=16)
             elif i == 12:
-                self._set_hold(i, not self._occ[i], on_ticks=8, off_ticks=28)
+                stay_or_start = self._occ[i] or random.random() < (0.22 + 0.5 * self.hostile_spawn)
+                self._set_hold(i, stay_or_start, on_ticks=8, off_ticks=28)
             else:
-                start = random.random() > 0.92
+                start = random.random() < (0.04 + 0.22 * self.noise_floor)
                 self._set_hold(i, start, on_ticks=10, off_ticks=36)
 
         # Safety: keep the three HIGH bands on a visible cadence even after a long off period.

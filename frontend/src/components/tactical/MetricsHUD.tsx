@@ -1,3 +1,4 @@
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
 import { ExplainCue } from "@/components/ui/insight-dialog";
 import { useInsightStore } from "@/store/useInsightStore";
@@ -32,9 +33,15 @@ const TILE_HELP: Record<string, { summary: string; detail: string }> = {
 
 export function MetricsHUD() {
   const metrics = useTacticalStore((s) => s.metrics);
-  const history = useTacticalStore((s) => s.pdHistory);
+  const session = useTacticalStore((s) => s.pdHistory);
+  const recent = useTacticalStore((s) => s.pdInstantHistory);
+  const running = useTacticalStore((s) => s.running);
   const show = useInsightStore((s) => s.show);
-  const data = history.map((pd, i) => ({ i, pd: pd * 100 }));
+  const data = session.map((pd, i) => ({
+    i,
+    session: pd,
+    recent: recent[i] ?? 0,
+  }));
 
   const tiles = [
     { label: "Pd", value: `${(metrics.pd * 100).toFixed(1)}%` },
@@ -61,32 +68,64 @@ export function MetricsHUD() {
           }
         >
           <CardContent className="p-3 pt-3">
-            <div className="font-mono text-[10px] uppercase tracking-widest text-[#a1a1aa]">{tile.label}</div>
-            <div className="mt-1 font-mono text-lg text-white">{tile.value}</div>
-            <p className="mt-1 font-mono text-[9px] uppercase tracking-widest text-[#555]">Open brief</p>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">{tile.label}</div>
+            <div className="mt-1 font-mono text-lg text-foreground">{tile.value}</div>
+            <p className="mt-1 font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Open brief</p>
           </CardContent>
         </Card>
       ))}
       <Card className="col-span-2 md:col-span-3 xl:col-span-6">
-        <CardContent className="space-y-3 p-3 pt-3">
-          <div className="font-mono text-[10px] uppercase tracking-widest text-[#a1a1aa]">Pd trend</div>
-          <div className="flex h-16 items-end gap-0.5">
+        <CardContent className="space-y-2 p-3 pt-3">
+          <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+            <span>Pd trend (session vs recent window)</span>
+            <span className={running ? "text-[#00ff66]" : ""}>
+              {running ? "Live" : "Halted"} · {(metrics.pd * 100).toFixed(1)}%
+            </span>
+          </div>
+          <div className="h-40">
             {data.length === 0 ? (
-              <div className="text-xs text-[#666]">Awaiting samples…</div>
+              <div className="flex h-full items-center text-xs text-muted-foreground">Awaiting samples…</div>
             ) : (
-              data.map((point) => (
-                <div
-                  key={point.i}
-                  className="flex-1 rounded-sm bg-[#e4e4e7]"
-                  style={{ height: `${Math.max(6, point.pd)}%`, opacity: 0.35 + (point.pd / 100) * 0.65 }}
-                />
-              ))
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                  <CartesianGrid stroke="currentColor" strokeOpacity={0.12} />
+                  <XAxis dataKey="i" hide />
+                  <YAxis domain={[0, 100]} width={32} stroke="currentColor" fontSize={10} tickFormatter={(v) => `${v}`} />
+                  <Tooltip
+                    formatter={(value, name) => [
+                      `${Number(value ?? 0).toFixed(1)}%`,
+                      name === "session" ? "Session Pd" : "Recent Pd",
+                    ]}
+                    contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12 }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="session"
+                    name="session"
+                    stroke="#e4e4e7"
+                    fill="#e4e4e7"
+                    fillOpacity={0.18}
+                    strokeWidth={2}
+                    isAnimationActive={false}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="recent"
+                    name="recent"
+                    stroke="#00ff66"
+                    fill="#00ff66"
+                    fillOpacity={0.12}
+                    strokeWidth={2}
+                    isAnimationActive={false}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             )}
           </div>
           <ExplainCue
             title="Pd trend"
-            summary="This strip is Pd over the last ~20 seconds of this run."
-            detail="Each bar is a downsampled sample. Compare a Smart Scan run against an open-loop run on the Analytics page for the same window."
+            summary="Grey is cumulative Pd for this run. Green is the last-tick hit rate so you can see Smart Scan vs open-loop while it is still running."
+            detail="Session Pd is hits / (hits + misses) so far, so it moves slowly. Recent Pd uses only the latest telemetry delta, which is why it jumps when the scheduler starts catching (or missing) emitters."
           />
         </CardContent>
       </Card>

@@ -17,9 +17,9 @@ export default function HomePage() {
     <PageWrapper>
       <TopographicBackground />
       <div className="relative z-10 mx-auto max-w-6xl px-6 py-8">
-        <header className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-[#262626] pb-4">
+        <header className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
           <div>
-            <div className="font-mono text-xs uppercase tracking-[0.35em] text-[#a1a1aa]">
+            <div className="font-mono text-xs uppercase tracking-[0.35em] text-muted-foreground">
               Smart Scan EW // DRDO SIH26055
             </div>
             <h1 className="mt-1 text-2xl font-semibold tracking-tight">AEGIS Operator Briefing</h1>
@@ -51,10 +51,10 @@ export default function HomePage() {
           <div className="space-y-4">
             <TerminalLoader />
             <Button variant="phosphor" size="lg" className="w-full rounded-2xl" asChild>
-              <Link to="/radar">Launch Radar Scope</Link>
+              <Link to="/scan">Launch Scan Console</Link>
             </Button>
-            <p className="font-mono text-[10px] uppercase tracking-widest text-[#666]">
-              Enter tactical radar interface
+            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              CRT polar + spectrum analyzer · 16-band Smart Scan
             </p>
           </div>
         </div>

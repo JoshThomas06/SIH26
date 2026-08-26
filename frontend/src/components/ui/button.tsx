@@ -8,9 +8,9 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-[#e4e4e7] text-[#040404] hover:bg-white",
-        outline: "border border-[#262626] bg-transparent text-[#e4e4e7] hover:bg-[#121212]",
-        ghost: "hover:bg-[#121212] text-[#a1a1aa]",
+        default: "bg-primary text-primary-foreground hover:opacity-90",
+        outline: "border border-border bg-transparent text-foreground hover:bg-accent",
+        ghost: "hover:bg-accent text-muted-foreground",
         phosphor: "bg-[#00ff66] text-[#021a0a] hover:bg-[#3fff8a] font-mono tracking-wider",
         threat: "border border-[#ff2a6d]/50 text-[#ff2a6d] bg-[#ff2a6d]/10",
       },

@@ -64,8 +64,8 @@ html,
 body,
 #root {
   min-height: 100%;
-  background: #040404;
-  color: #ffffff;
+  background: var(--background);
+  color: var(--foreground);
 }
 
 body {
@@ -77,4 +77,77 @@ body {
 button,
 input {
   font-family: inherit;
+}
+
+html.theme-light {
+  --background: #c4c4cc;
+  --foreground: #18181b;
+  --card: #d6d6dc;
+  --card-foreground: #18181b;
+  --popover: #d0d0d6;
+  --popover-foreground: #18181b;
+  --primary: #27272a;
+  --primary-foreground: #f4f4f5;
+  --secondary: #c9c9d0;
+  --secondary-foreground: #18181b;
+  --muted: #bcbcc4;
+  --muted-foreground: #3f3f46;
+  --accent: #b7b7bf;
+  --accent-foreground: #18181b;
+  --border: #9a9aa3;
+  --input: #9a9aa3;
+  --obsidian: #c4c4cc;
+  --graphite: #ceced4;
+}
+
+html.theme-light [class*="bg-[#040404]"] {
+  background-color: #c4c4cc !important;
+}
+html.theme-light [class*="bg-[#121212]"] {
+  background-color: #d6d6dc !important;
+}
+html.theme-light [class*="bg-[#0d0d0d]"] {
+  background-color: #ceced4 !important;
+}
+html.theme-light [class*="text-white"] {
+  color: #18181b !important;
+}
+html.theme-light [class*="border-[#262626]"] {
+  border-color: #9a9aa3 !important;
+}
+html.theme-light [class*="text-[#a1a1aa]"] {
+  color: #3f3f46 !important;
+}
+html.theme-light [class*="text-[#e4e4e7]"] {
+  color: #18181b !important;
+}
+html.theme-light [class*="text-[#666]"],
+html.theme-light [class*="text-[#555]"],
+html.theme-light [class*="text-[#888]"] {
+  color: #52525b !important;
+}
+
+html.theme-light .crt-persist,
+html.theme-light .crt-persist [class*="bg-[#040404]"] {
+  background-color: #040404 !important;
+  color: #e4e4e7 !important;
+}
+html.theme-light .crt-persist [class*="text-white"],
+html.theme-light .crt-persist [class*="text-[#a1a1aa]"],
+html.theme-light .crt-persist [class*="text-[#e4e4e7]"] {
+  color: #d4d4d8 !important;
+}
+
+html.high-contrast {
+  --muted-foreground: #e4e4e7;
+  --border: #a1a1aa;
+}
+html.theme-light.high-contrast {
+  --muted-foreground: #111827;
+  --border: #3f3f46;
+  --foreground: #09090b;
+}
+
+html[data-reduce-motion="true"] .animate-pulse {
+  animation: none !important;
 }

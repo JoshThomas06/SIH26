@@ -73,7 +73,7 @@ export default function AnalyticsPage() {
             {cards.length === 0 ? (
               <Card>
                 <CardContent className="p-4 pt-4 text-sm text-[#a1a1aa]">
-                  No runs archived yet. Open Radar, press Initiate, then Halt to close a session.
+                  No runs archived yet. Open Scan, press Initiate, then Halt to close a session.
                 </CardContent>
               </Card>
             ) : (

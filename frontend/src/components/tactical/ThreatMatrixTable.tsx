@@ -40,6 +40,7 @@ export function ThreatMatrixTable() {
               <th>Pri</th>
               <th>State</th>
               <th>Threat</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -51,15 +52,28 @@ export function ThreatMatrixTable() {
                   "cursor-pointer border-t border-[#1a1a1a] transition-colors hover:bg-white/5",
                   i === tuned && "bg-[#00ff66]/10",
                   band.threat_level === "HIGH" && "bg-[#ff2a6d]/10",
+                  band.ignored && "opacity-40",
                   selected === i && "ring-1 ring-inset ring-white/20",
                 )}
               >
-                <td className="px-2 py-1.5 text-white">{String(band.band_id).padStart(2, "0")}</td>
+                <td className="px-2 py-1.5 text-foreground">{String(band.band_id).padStart(2, "0")}</td>
                 <td>{band.center_freq_mhz}</td>
                 <td>{band.aoi_ms.toFixed(0)}</td>
                 <td>{band.priority_score.toFixed(2)}</td>
-                <td className={i === tuned ? "text-[#00ff66]" : "text-[#a1a1aa]"}>{band.status}</td>
+                <td className={i === tuned ? "text-[#00ff66]" : "text-muted-foreground"}>{band.status}</td>
                 <td className={TONE[band.threat_level]}>{band.threat_level}</td>
+                <td>
+                  <button
+                    type="button"
+                    className="rounded border border-border px-1 text-[9px] uppercase tracking-widest text-muted-foreground hover:text-foreground"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      void setSchedulerConfig(band.ignored ? { unignore_band: i } : { ignore_band: i });
+                    }}
+                  >
+                    {band.ignored ? "Restore" : "Ignore"}
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -74,7 +88,7 @@ export function ThreatMatrixTable() {
               : " AoI is how stale this slice is; HIGH rows are the ones Smart Scan must not starve."}
           </>
         ) : (
-          "Hover a row to inspect it. Click to park the receiver there (manual dwell)."
+          "Click a row to lock (manual dwell). Ignore skips the band in Linear and Smart Scan."
         )}
       </div>
     </div>

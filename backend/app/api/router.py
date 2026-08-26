@@ -23,6 +23,12 @@ class SchedulerConfig(BaseModel):
     aoi_decay_factor: float | None = Field(default=None, ge=0.5, le=3.0)
     dwell_time_override_ms: float | None = None
     manual_band: int | None = Field(default=None, ge=0, le=15)
+    ignore_band: int | None = Field(default=None, ge=0, le=15)
+    unignore_band: int | None = Field(default=None, ge=0, le=15)
+    sweep_ms: float | None = Field(default=None, ge=20, le=500)
+    hostile_spawn: float | None = Field(default=None, ge=0, le=1)
+    noise_floor: float | None = Field(default=None, ge=0, le=0.8)
+    epsilon: float | None = Field(default=None, ge=0, le=0.4)
 
 
 class SimulationCommand(BaseModel):
@@ -36,7 +42,14 @@ def update_config(
 ) -> dict:
     _require_auth(authorization)
     runtime.configure(**body.model_dump(exclude_none=True))
-    return {"ok": True, "mode": runtime.scheduler.mode}
+    return {
+        "ok": True,
+        "mode": runtime.scheduler.mode,
+        "sweep_ms": runtime.sweep_ms,
+        "hostile_spawn": runtime.hostile_spawn,
+        "noise_floor": runtime.noise_floor,
+        "ignored": sorted(runtime.scheduler.ignored),
+    }
 
 
 @router.post("/simulation/{action}")
