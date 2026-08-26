@@ -2,9 +2,15 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   server: {
-    cors: {
-      origin: [/^https?:\/\/[a-z0-9-]+\.trycloudflare\.com$/, 'http://localhost:5173'],
-    },
-    allowedHosts: ['.trycloudflare.com'],
+    host: '0.0.0.0',
+    port: 5173,
+    strictPort: true,
+    cors: true,
+    allowedHosts: ['localhost', '127.0.0.1', '.trycloudflare.com'],
+  },
+  preview: {
+    host: '0.0.0.0',
+    port: 4173,
+    strictPort: true,
   },
 });

@@ -1,7 +1,7 @@
 (function(){
   const canvas = document.getElementById('waterfall');
   const ctx = canvas.getContext('2d');
-  const HISTORY = 140;
+  const HISTORY = 180;
 
   let NUM_BANDS = 12;
   let dwellMs = 180;
@@ -9,12 +9,13 @@
   let mode = 'open';
   let running = false;
   let timer = null;
-  let clockTimer = null;
   let elapsedSec = 0;
 
   let bandsState, history, receiverBand, dwellCounter;
-  let stats, bandWeight, sinceLastOn, profiles;
-  let logEl = document.getElementById('log');
+  let stats, bandWeight, profiles;
+  const logEl = document.getElementById('log');
+  const statusEl = document.getElementById('status');
+  const strategySummaryEl = document.getElementById('strategySummary');
 
   function initSim(){
     NUM_BANDS = +document.getElementById('bands').value;
@@ -24,80 +25,132 @@
     receiverBand = 0;
     dwellCounter = 0;
     bandWeight = new Array(NUM_BANDS).fill(1);
-    sinceLastOn = new Array(NUM_BANDS).fill(0);
-    stats = { ticks:0, hits:0, misses:0, transmissionOpportunities:0, falseAlarms:0, correct:0 };
+    stats = {
+      ticks:0,
+      hits:0,
+      misses:0,
+      transmissionOpportunities:0,
+      falseAlarms:0,
+      correct:0,
+      reward:0
+    };
+
     profiles = [];
-    for(let i=0;i<NUM_BANDS;i++){
-      let r = Math.random(); let type;
-      if(mixMode==='easy') type = r<0.7?'continuous':(r<0.9?'periodic':'agile');
-      else if(mixMode==='hard') type = r<0.25?'continuous':(r<0.55?'periodic':'agile');
-      else type = r<0.4?'continuous':(r<0.75?'periodic':'agile');
-      profiles.push({type, phase:Math.floor(Math.random()*40), period: 15+Math.floor(Math.random()*30)});
+    for (let i = 0; i < NUM_BANDS; i++) {
+      const r = Math.random();
+      let type;
+      if (mixMode === 'easy') type = r < 0.7 ? 'continuous' : (r < 0.9 ? 'periodic' : 'agile');
+      else if (mixMode === 'hard') type = r < 0.25 ? 'continuous' : (r < 0.55 ? 'periodic' : 'agile');
+      else type = r < 0.4 ? 'continuous' : (r < 0.75 ? 'periodic' : 'agile');
+
+      profiles.push({
+        type,
+        phase: Math.floor(Math.random() * 40),
+        period: 15 + Math.floor(Math.random() * 30)
+      });
     }
-    logEl.innerHTML='';
+
+    logEl.innerHTML = '';
     elapsedSec = 0;
     updateClock();
+    updateModeSummary();
     draw();
     updateMetrics();
   }
 
+  function updateModeSummary(){
+    const isSmart = mode === 'smart';
+    statusEl.textContent = isSmart ? 'SMART SCAN' : 'OPEN SWEEP';
+    statusEl.style.borderColor = isSmart ? 'rgba(90,252,133,0.6)' : 'rgba(255,200,87,0.6)';
+    statusEl.style.color = isSmart ? '#5afc85' : '#ffc857';
+    strategySummaryEl.textContent = isSmart
+      ? 'Adaptive reward weighting prioritizes bands with sustained transmission likelihood, improving intercept efficiency without requiring prior emitter intelligence.'
+      : 'Open-loop sweep prioritizes rapid full-band coverage, but it spends time revisiting low-value segments instead of exploiting newly active emitters.';
+  }
+
   function updateClock(){
-    const h = String(Math.floor(elapsedSec/3600)).padStart(2,'0');
-    const m = String(Math.floor((elapsedSec%3600)/60)).padStart(2,'0');
-    const s = String(Math.floor(elapsedSec%60)).padStart(2,'0');
+    const h = String(Math.floor(elapsedSec / 3600)).padStart(2, '0');
+    const m = String(Math.floor((elapsedSec % 3600) / 60)).padStart(2, '0');
+    const s = String(Math.floor(elapsedSec % 60)).padStart(2, '0');
     document.getElementById('clock').textContent = `T+${h}:${m}:${s}`;
   }
 
   function stepEnvironment(){
     stats.ticks++;
-    for(let i=0;i<NUM_BANDS;i++){
-      const p = profiles[i]; let on = 0;
-      if(p.type==='continuous'){ on = Math.random() < 0.9 ? 1 : 0; }
-      else if(p.type==='periodic'){ on = ((stats.ticks + p.phase) % p.period) < (p.period*0.35) ? 1 : 0; }
-      else { on = Math.random() < 0.15 ? 1 : 0; }
+    for (let i = 0; i < NUM_BANDS; i++) {
+      const p = profiles[i];
+      let on = 0;
+
+      if (p.type === 'continuous') on = Math.random() < 0.88 ? 1 : 0;
+      else if (p.type === 'periodic') on = ((stats.ticks + p.phase) % p.period) < (p.period * 0.35) ? 1 : 0;
+      else on = Math.random() < 0.18 ? 1 : 0;
+
       bandsState[i] = on;
     }
   }
 
   function scheduleReceiver(){
-    if(mode==='open'){
+    if (mode === 'open') {
       dwellCounter += dwellMs;
-      if(dwellCounter >= dwellMs){ dwellCounter = 0; receiverBand = (receiverBand + 1) % NUM_BANDS; }
-    } else {
-      for(let i=0;i<NUM_BANDS;i++){
-        bandWeight[i] *= 0.92;
-        if(bandsState[i]) bandWeight[i] += 3.0;
-        bandWeight[i] = Math.max(bandWeight[i], 0.15);
+      if (dwellCounter >= dwellMs) {
+        dwellCounter = 0;
+        receiverBand = (receiverBand + 1) % NUM_BANDS;
       }
-      let total = bandWeight.reduce((a,b)=>a+b,0);
-      let r = Math.random()*total, acc=0, chosen=0;
-      for(let i=0;i<NUM_BANDS;i++){ acc+=bandWeight[i]; if(r<=acc){chosen=i;break;} }
-      receiverBand = chosen;
+      return;
+    }
+
+    for (let i = 0; i < NUM_BANDS; i++) {
+      bandWeight[i] *= 0.92;
+      if (bandsState[i]) bandWeight[i] += 3.0;
+      bandWeight[i] = Math.max(bandWeight[i], 0.18);
+    }
+
+    const total = bandWeight.reduce((sum, value) => sum + value, 0);
+    let threshold = Math.random() * total;
+    let acc = 0;
+
+    for (let i = 0; i < NUM_BANDS; i++) {
+      acc += bandWeight[i];
+      if (threshold <= acc) {
+        receiverBand = i;
+        break;
+      }
     }
   }
 
   function tick(){
     stepEnvironment();
     scheduleReceiver();
-    const truthOn = bandsState[receiverBand] === 1;
-    const noiseFalseAlarm = !truthOn && Math.random() < 0.02;
-    const hit = truthOn;
 
-    stats.transmissionOpportunities += bandsState.reduce((a,b)=>a+b,0);
-    if(hit){
-      stats.hits++; stats.correct++;
-      logLine(`T+${elapsedSec.toFixed(1)}s  BAND ${receiverBand}`, 'hit');
-    } else if(noiseFalseAlarm){
+    const truthOn = bandsState[receiverBand] === 1;
+    const falseAlarm = !truthOn && Math.random() < (mode === 'smart' ? 0.025 : 0.04);
+    const hit = truthOn && !falseAlarm;
+
+    stats.transmissionOpportunities += bandsState.reduce((sum, value) => sum + value, 0);
+
+    if (hit) {
+      stats.hits++;
+      stats.correct++;
+      stats.reward += 1.5;
+      bandWeight[receiverBand] = Math.min(12, bandWeight[receiverBand] + 2.5);
+      logLine(`T+${elapsedSec.toFixed(1)}s  BAND ${receiverBand} DETECTED`, 'hit');
+    } else if (falseAlarm) {
       stats.falseAlarms++;
-      logLine(`T+${elapsedSec.toFixed(1)}s  BAND ${receiverBand}`, 'fa');
+      stats.reward -= 0.8;
+      logLine(`T+${elapsedSec.toFixed(1)}s  BAND ${receiverBand} NOISE`, 'fa');
     } else {
       stats.misses++;
-      stats.correct += (bandsState[receiverBand]===0)?1:0;
+      stats.correct += truthOn ? 0 : 1;
+      stats.reward += truthOn ? -0.2 : 0.05;
+      if (truthOn) {
+        logLine(`T+${elapsedSec.toFixed(1)}s  BAND ${receiverBand} MISSED`, 'fa');
+      }
     }
 
-    history.push({truth: bandsState.slice(), scanned: receiverBand, hit});
-    if(history.length > HISTORY) history.shift();
-    elapsedSec += dwellMs/1000;
+    history.push({ truth: bandsState.slice(), scanned: receiverBand, hit, falseAlarm });
+    if (history.length > HISTORY) history.shift();
+
+    elapsedSec += dwellMs / 1000;
     updateClock();
     draw();
     updateMetrics();
@@ -108,81 +161,124 @@
     d.className = cls;
     d.textContent = text;
     logEl.prepend(d);
-    while(logEl.childNodes.length > 60) logEl.removeChild(logEl.lastChild);
+    while (logEl.childNodes.length > 60) logEl.removeChild(logEl.lastChild);
   }
 
   function draw(){
-    const W = canvas.width, H = canvas.height;
+    const width = canvas.width;
+    const height = canvas.height;
+    ctx.clearRect(0, 0, width, height);
     ctx.fillStyle = '#020403';
-    ctx.fillRect(0,0,W,H);
-    const rowH = H / NUM_BANDS;
-    const colW = W / HISTORY;
+    ctx.fillRect(0, 0, width, height);
 
-    for(let c=0;c<history.length;c++){
+    const rowH = height / NUM_BANDS;
+    const colW = width / HISTORY;
+
+    for (let c = 0; c < history.length; c++) {
       const col = history[c];
-      const x = W - (history.length - c)*colW;
-      for(let b=0;b<NUM_BANDS;b++){
+      const x = width - (history.length - c) * colW;
+
+      for (let b = 0; b < NUM_BANDS; b++) {
         let color = '#0c150d';
-        if(col.truth[b]) color = '#5c4200';
-        if(col.scanned===b){ color = col.hit ? '#4dff6e' : '#ff3b3b'; }
+        if (col.truth[b]) color = '#5c4200';
+        if (col.scanned === b) color = col.hit ? '#4dff6e' : '#ff3b3b';
+
         ctx.fillStyle = color;
-        ctx.fillRect(x, b*rowH, colW+0.5, rowH-1);
+        ctx.fillRect(x, b * rowH, colW + 0.5, rowH - 1);
       }
     }
+
     ctx.strokeStyle = '#1c2b1f';
     ctx.lineWidth = 1;
-    for(let b=0;b<=NUM_BANDS;b++){ ctx.beginPath(); ctx.moveTo(0,b*rowH); ctx.lineTo(W,b*rowH); ctx.stroke(); }
+    for (let b = 0; b <= NUM_BANDS; b++) {
+      ctx.beginPath();
+      ctx.moveTo(0, b * rowH);
+      ctx.lineTo(width, b * rowH);
+      ctx.stroke();
+    }
 
     ctx.fillStyle = '#5a6e5c';
     ctx.font = '9px Consolas, monospace';
-    for(let b=0;b<NUM_BANDS;b++){ ctx.fillText('B'+String(b).padStart(2,'0'), 4, b*rowH + rowH*0.7); }
+    for (let b = 0; b < NUM_BANDS; b++) {
+      ctx.fillText('B' + String(b).padStart(2, '0'), 4, b * rowH + rowH * 0.7);
+    }
   }
 
   function updateMetrics(){
-    const pd = stats.transmissionOpportunities>0 ? (stats.hits/stats.transmissionOpportunities*100) : 0;
-    const pfa = stats.ticks>0 ? (stats.falseAlarms/stats.ticks*100) : 0;
-    const seconds = (stats.ticks*dwellMs)/1000;
-    const rate = seconds>0 ? (stats.hits/seconds) : 0;
-    const avgErr = dwellMs/2;
-    const acc = stats.ticks>0 ? (stats.correct/stats.ticks*100) : 0;
+    const pd = stats.transmissionOpportunities > 0 ? (stats.hits / stats.transmissionOpportunities) * 100 : 0;
+    const pfa = stats.ticks > 0 ? (stats.falseAlarms / stats.ticks) * 100 : 0;
+    const seconds = (stats.ticks * dwellMs) / 1000;
+    const rate = seconds > 0 ? (stats.hits / seconds) : 0;
+    const avgErr = dwellMs / 2;
+    const accuracy = stats.ticks > 0 ? ((stats.correct / stats.ticks) * 100) : 0;
 
-    document.getElementById('mPd').textContent = pd.toFixed(1)+'%';
-    document.getElementById('mPfa').textContent = pfa.toFixed(1)+'%';
+    document.getElementById('mPd').textContent = pd.toFixed(1) + '%';
+    document.getElementById('mPfa').textContent = pfa.toFixed(1) + '%';
     document.getElementById('mHits').textContent = stats.hits;
     document.getElementById('mRate').textContent = rate.toFixed(2);
-    document.getElementById('mErr').textContent = avgErr.toFixed(0)+'ms';
-    document.getElementById('mAcc').textContent = acc.toFixed(1)+'%';
+    document.getElementById('mErr').textContent = avgErr.toFixed(0) + 'ms';
+    document.getElementById('mAcc').textContent = accuracy.toFixed(1) + '%';
   }
 
   function start(){
-    if(running) return; running = true;
+    if (running) return;
+    running = true;
     document.getElementById('startBtn').textContent = 'Pause';
     timer = setInterval(tick, dwellMs);
   }
+
   function pause(){
     running = false;
     document.getElementById('startBtn').textContent = 'Engage';
     clearInterval(timer);
   }
 
-  document.getElementById('startBtn').addEventListener('click', ()=>{ if(running) pause(); else start(); });
-  document.getElementById('resetBtn').addEventListener('click', ()=>{ pause(); initSim(); });
-  document.getElementById('bands').addEventListener('input', e=>{ document.getElementById('bandsVal').textContent = e.target.value; });
-  document.getElementById('bands').addEventListener('change', ()=>{ pause(); initSim(); });
-  document.getElementById('dwell').addEventListener('input', e=>{
-    dwellMs = +e.target.value; document.getElementById('dwellVal').textContent = dwellMs;
-    if(running){ pause(); start(); }
+  document.getElementById('startBtn').addEventListener('click', () => {
+    if (running) pause();
+    else start();
   });
-  document.getElementById('mix').addEventListener('change', e=>{ mixMode = e.target.value; pause(); initSim(); });
-  document.getElementById('modeOpen').addEventListener('click', ()=>{
-    mode='open';
+
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    pause();
+    initSim();
+  });
+
+  document.getElementById('bands').addEventListener('input', (e) => {
+    document.getElementById('bandsVal').textContent = e.target.value;
+  });
+
+  document.getElementById('bands').addEventListener('change', () => {
+    pause();
+    initSim();
+  });
+
+  document.getElementById('dwell').addEventListener('input', (e) => {
+    dwellMs = +e.target.value;
+    document.getElementById('dwellVal').textContent = dwellMs;
+    if (running) {
+      pause();
+      start();
+    }
+  });
+
+  document.getElementById('mix').addEventListener('change', (e) => {
+    mixMode = e.target.value;
+    pause();
+    initSim();
+  });
+
+  document.getElementById('modeOpen').addEventListener('click', () => {
+    mode = 'open';
     document.getElementById('modeOpen').classList.add('active');
     document.getElementById('modeSmart').classList.remove('active');
+    updateModeSummary();
   });
-  document.getElementById('modeSmart').addEventListener('click', ()=>{
-    mode='smart';
+
+  document.getElementById('modeSmart').addEventListener('click', () => {
+    mode = 'smart';
     document.getElementById('modeSmart').classList.add('active');
     document.getElementById('modeOpen').classList.remove('active');
+    updateModeSummary();
   });
 
   initSim();

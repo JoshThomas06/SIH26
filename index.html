@@ -3,34 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SIH26 &mdash; Cognitive Radio Spectrum Monitor</title>
+  <title>SIH26 &mdash; Smart Scan Strategy for EW</title>
   <link rel="stylesheet" href="./Styles.css">
 </head>
 <body>
-  <div class="classband">UNCLASSIFIED // FOR DEMONSTRATION ONLY</div>
+  <div class="classband">UNCLASSIFIED // DEMONSTRATION ONLY</div>
 
-  <div class="topbar">
+  <header class="topbar">
     <div class="sysid">
       <span class="led"></span>
       <div>
         <h1>SIH26</h1>
-        <div class="tag">COGNITIVE RADIO &middot; SPECTRUM SENSING</div>
+        <div class="tag">SMART SCAN STRATEGY &middot; ELECTRONIC WARFARE</div>
       </div>
     </div>
-    <div class="clock" id="clock">T+00:00:00</div>
-  </div>
+    <div class="clock-wrap">
+      <div class="status-pill" id="status">OPEN SWEEP</div>
+      <div class="clock" id="clock">T+00:00:00</div>
+    </div>
+  </header>
 
-  <div class="wrap">
+  <main class="wrap">
+    <section class="hero panels">
+      <div class="brief-panel">
+        <p class="eyebrow">EW SURVEILLANCE OBJECTIVE</p>
+        <h2>Adaptive scan scheduling in the absence of reliable emitter intelligence.</h2>
+        <p id="strategySummary">
+          Open-loop sweep prioritizes full-band coverage, but a smart scheduler learns which bands are producing sustained activity and steers the receiver toward high-value segments with better intercept efficiency.
+        </p>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi">
+          <span class="label">Mission</span>
+          <strong>Intercept</strong>
+          <small>Hostile communications & radar activity</small>
+        </div>
+        <div class="kpi">
+          <span class="label">Search</span>
+          <strong>Adaptive</strong>
+          <small>Learning-based band prioritization</small>
+        </div>
+        <div class="kpi">
+          <span class="label">Constraint</span>
+          <strong>Low BW</strong>
+          <small>Wide spectrum, narrow instantaneous coverage</small>
+        </div>
+      </div>
+    </section>
+
     <div class="layout">
       <div class="left">
         <div class="panel">
           <h2><span class="idx">[01]</span> SPECTRUM WATERFALL <span id="bandCount">12 BANDS</span></h2>
           <canvas id="waterfall" width="1200" height="420"></canvas>
           <div class="legend">
-            <span><i class="dot" style="background:#5c4200"></i>Signal</span>
-            <span><i class="dot" style="background:#4dff6e"></i>Scan Hit</span>
-            <span><i class="dot" style="background:#ff3b3b"></i>Scan Miss</span>
-            <span><i class="dot" style="background:#0c150d"></i>Idle</span>
+            <span><i class="dot signal"></i>Signal</span>
+            <span><i class="dot hit"></i>Scan Hit</span>
+            <span><i class="dot miss"></i>Scan Miss</span>
+            <span><i class="dot idle"></i>Idle</span>
           </div>
           <div class="log" id="log"></div>
         </div>
@@ -38,7 +68,7 @@
 
       <div class="right">
         <div class="panel">
-          <h2><span class="idx">[02]</span> CONTROLS</h2>
+          <h2><span class="idx">[02]</span> SYSTEM CONTROLS</h2>
           <div class="controls-row">
             <label>Bands <b id="bandsVal">12</b></label>
             <input type="range" id="bands" min="4" max="24" step="1" value="12">
@@ -61,7 +91,7 @@
           <h2><span class="idx">[03]</span> RECEIVER MODE</h2>
           <div class="keyrow">
             <button class="fkey active" id="modeOpen">Open Sweep <small>round-robin</small></button>
-            <button class="fkey" id="modeSmart">Smart <small>Q-learning</small></button>
+            <button class="fkey" id="modeSmart">Smart <small>adaptive</small></button>
           </div>
           <div class="btnrow">
             <button class="action" id="startBtn">Engage</button>
@@ -70,14 +100,14 @@
         </div>
 
         <div class="panel">
-          <h2><span class="idx">[04]</span> METRICS</h2>
+          <h2><span class="idx">[04]</span> PERFORMANCE</h2>
           <div class="metrics">
-            <div class="metric"><div class="val" id="mPd">0.0%</div><div class="lbl">Prob. of Detection</div></div>
+            <div class="metric"><div class="val" id="mPd">0.0%</div><div class="lbl">Probability of Detection</div></div>
             <div class="metric"><div class="val" id="mPfa">0.0%</div><div class="lbl">False Alarm Rate</div></div>
-            <div class="metric"><div class="val" id="mHits">0</div><div class="lbl">Hits</div></div>
+            <div class="metric"><div class="val" id="mHits">0</div><div class="lbl">Intercept Hits</div></div>
             <div class="metric"><div class="val" id="mRate">0.00</div><div class="lbl">Hits / sec</div></div>
-            <div class="metric"><div class="val" id="mErr">90ms</div><div class="lbl">Avg. Error</div></div>
-            <div class="metric"><div class="val" id="mAcc">0.0%</div><div class="lbl">Accuracy</div></div>
+            <div class="metric"><div class="val" id="mErr">90ms</div><div class="lbl">Avg. Intercept Error</div></div>
+            <div class="metric"><div class="val" id="mAcc">0.0%</div><div class="lbl">Prediction Accuracy</div></div>
           </div>
         </div>
       </div>
@@ -86,6 +116,6 @@
     <div class="footer-note">Prototype &mdash; Spectral Awareness Engine</div>
   </div>
 
-  <script src="./Script.js"></script>
+  <script type="module" src="./Script.js"></script>
 </body>
 </html>
