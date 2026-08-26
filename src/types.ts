@@ -6,6 +6,9 @@ export interface BandState {
   emitterType: EmitterType;
   signalStrength: number;
   isKnownThreat: boolean;
+  isIgnored?: boolean;
+  hostileStartTime?: number | null;
+  hasBeenIntercepted?: boolean;
 }
 
 export interface SystemMetrics {
@@ -15,6 +18,7 @@ export interface SystemMetrics {
   misses: number;
   interceptionRate: number;
   avgScanCycleTimeMs: number;
+  avgInterceptTimeErrorMs: number;
 }
 
 export type ScanStrategy = 'linear' | 'smart';
@@ -25,3 +29,15 @@ export interface LogEntry {
   message: string;
   type: 'info' | 'warning' | 'critical' | 'success';
 }
+
+export interface WaterfallRow {
+  id: string;
+  cells: { type: EmitterType, strength: number }[];
+}
+
+export interface SimConfig {
+  sweepSpeedMs: number;
+  hostileSpawnRate: number;
+  noiseFloor: number;
+}
+
