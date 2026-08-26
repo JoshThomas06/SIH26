@@ -1,0 +1,6 @@
+{
+  "name": "EW Smart Scan Prototype",
+  "description": "Smart Scan Strategy for Electronic Warfare using ML scheduling concepts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
