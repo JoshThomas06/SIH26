@@ -54,6 +54,50 @@ def simulation_command(
     return {"ok": True, "running": runtime.running, "mode": runtime.scheduler.mode}
 
 
+@router.get("/sessions")
+def list_sessions(authorization: str | None = Header(default=None)) -> dict:
+    _require_auth(authorization)
+    from app.core.archive import archive
+
+    return {"sessions": archive.list_sessions()}
+
+
+@router.get("/sessions/current")
+def current_session(authorization: str | None = Header(default=None)) -> dict:
+    _require_auth(authorization)
+    from app.core.archive import archive, compose_summary
+
+    if archive.current:
+        return archive.current
+    if archive.sessions:
+        return archive.sessions[0]
+    return {
+        "id": None,
+        "label": "NO-RUN",
+        "status": "IDLE",
+        "mode": runtime.scheduler.mode,
+        "samples": [],
+        "flags": [],
+        "logs": [],
+        "summary": compose_summary(
+            {"mode": runtime.scheduler.mode, "metrics_end": runtime.latest.get("metrics", {}), "samples": [], "flags": []},
+            live=False,
+        ),
+        "metrics_end": runtime.latest.get("metrics", {}),
+    }
+
+
+@router.get("/sessions/{session_id}")
+def get_session(session_id: str, authorization: str | None = Header(default=None)) -> dict:
+    _require_auth(authorization)
+    from app.core.archive import archive
+
+    session = archive.get(session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    return session
+
+
 @router.get("/health")
 def health() -> dict:
     return {"status": "ok", "service": "aegis-ew-scheduler"}

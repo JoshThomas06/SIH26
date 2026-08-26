@@ -1,6 +1,9 @@
+import { useEffect, useState } from "react";
 import { Pause, Play, RotateCcw } from "lucide-react";
 import { Link } from "react-router-dom";
+import { AppNav } from "@/components/AppNav";
 import { PageWrapper } from "@/components/motion/PageWrapper";
+import { AiSummaryPanel } from "@/components/tactical/AiSummaryPanel";
 import { ExplainableConsole } from "@/components/tactical/ExplainableConsole";
 import { MetricsHUD } from "@/components/tactical/MetricsHUD";
 import { PolarRadarScope } from "@/components/tactical/PolarRadarScope";
@@ -18,7 +21,14 @@ export default function RadarPage() {
   const running = useTacticalStore((s) => s.running);
   const connected = useTacticalStore((s) => s.isConnected);
   const mode = useTacticalStore((s) => s.schedulerMode);
-  const clock = new Date().toISOString().slice(11, 19);
+  const [clock, setClock] = useState(() => new Date().toISOString().slice(11, 19));
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setClock(new Date().toISOString().slice(11, 19));
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, []);
 
   return (
     <PageWrapper>
@@ -29,12 +39,13 @@ export default function RadarPage() {
               Smart Scan EW // Tactical C2
             </div>
             <div className="mt-1 flex flex-wrap items-center gap-2">
-              <Badge>{connected ? "Telemetry 20 Hz" : "Disconnected"}</Badge>
+              <Badge>{connected ? "Sim 20 Hz · display 5 Hz" : "Disconnected"}</Badge>
               <Badge>{mode}</Badge>
               <Badge>Zulu {clock}</Badge>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <AppNav />
             <Button variant="outline" size="sm" asChild>
               <Link to="/">Home</Link>
             </Button>
@@ -62,6 +73,10 @@ export default function RadarPage() {
             <SpectrumWaterfall />
           </div>
           <ThreatMatrixTable />
+        </div>
+
+        <div className="mt-3">
+          <AiSummaryPanel title="AI summary of this scan session" />
         </div>
 
         <div className="mt-3 grid gap-3 lg:grid-cols-2">

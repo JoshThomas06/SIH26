@@ -69,3 +69,59 @@ export async function setSchedulerConfig(payload: Record<string, unknown>): Prom
   });
   if (!res.ok) throw new Error("Scheduler config failed");
 }
+
+export type RunSession = {
+  id: string | null;
+  label: string;
+  status: string;
+  mode: string;
+  started_at?: number;
+  ended_at?: number | null;
+  flag_count?: number;
+  sample_count?: number;
+  pd?: number;
+  hits?: number;
+  misses?: number;
+  summary: string;
+  samples?: Array<{
+    t: number;
+    pd: number;
+    pfa: number;
+    dt: number;
+    reward: number;
+    hits: number;
+    misses: number;
+    tuned_band: number;
+    mode: string;
+  }>;
+  flags?: Array<{
+    id: string;
+    t: number;
+    kind: string;
+    severity: string;
+    band: number | null;
+    title: string;
+    detail: string;
+  }>;
+  logs?: string[];
+  metrics_end?: Record<string, number>;
+};
+
+async function authGet<T>(path: string): Promise<T> {
+  const token = getToken();
+  const res = await fetch(path, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new Error(`Request failed: ${path}`);
+  return (await res.json()) as T;
+}
+
+export function listRunSessions() {
+  return authGet<{ sessions: RunSession[] }>("/api/v1/sessions");
+}
+
+export function getRunSession(id: string) {
+  return authGet<RunSession>(`/api/v1/sessions/${id}`);
+}
+
+export function getCurrentRunSession() {
+  return authGet<RunSession>("/api/v1/sessions/current");
+}

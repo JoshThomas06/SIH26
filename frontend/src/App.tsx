@@ -1,7 +1,10 @@
 import { AnimatePresence } from "framer-motion";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { InsightDialog } from "@/components/ui/insight-dialog";
+import AnalyticsPage from "@/pages/AnalyticsPage";
 import HomePage from "@/pages/HomePage";
+import LearnPage from "@/pages/LearnPage";
 import LoginPage from "@/pages/LoginPage";
 import RadarPage from "@/pages/RadarPage";
 
@@ -27,6 +30,22 @@ function AnimatedRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/analytics"
+          element={
+            <ProtectedRoute>
+              <AnalyticsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/learn"
+          element={
+            <ProtectedRoute>
+              <LearnPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AnimatePresence>
@@ -36,6 +55,7 @@ function AnimatedRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
+      <InsightDialog />
       <AnimatedRoutes />
     </BrowserRouter>
   );

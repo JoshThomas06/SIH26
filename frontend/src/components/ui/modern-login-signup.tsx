@@ -133,7 +133,7 @@ export default function OperatorAccessGate() {
   const socialBtn: CSSProperties = {
     width: "100%",
     padding: "0.65rem",
-    borderRadius: 2,
+    borderRadius: 16,
     border: "1px solid #333",
     background: "transparent",
     color: "#fff",
@@ -145,7 +145,7 @@ export default function OperatorAccessGate() {
   const input: CSSProperties = {
     width: "100%",
     padding: "0.65rem 0.85rem",
-    borderRadius: 2,
+    borderRadius: 16,
     border: "1px solid #333",
     background: "#000",
     color: "#fff",
@@ -184,7 +184,7 @@ export default function OperatorAccessGate() {
           position: "relative",
           zIndex: 2,
           background: "#121212",
-          borderRadius: 4,
+          borderRadius: 16,
           padding: "2rem",
           width: "100%",
           maxWidth: 400,
@@ -246,7 +246,7 @@ export default function OperatorAccessGate() {
             style={{
               width: "100%",
               padding: "0.65rem",
-              borderRadius: 2,
+              borderRadius: 16,
               border: "none",
               background: "#ededed",
               color: "#000",

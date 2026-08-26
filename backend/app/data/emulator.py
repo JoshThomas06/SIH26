@@ -1,9 +1,8 @@
-"""Synthetic RF environment: 16 sub-bands with periodic, agile, and short-pulse emitters."""
+"""Synthetic RF environment with sticky occupancy so the C2 displays stay readable."""
 
 from __future__ import annotations
 
 import random
-import time
 from dataclasses import dataclass, field
 
 from app.core.config import settings
@@ -46,33 +45,51 @@ class RFEmulator:
         self.center_freqs = [500.0 + i * 500.0 for i in range(num_bands)]
         self.state = EmulatorState()
         self._onset: dict[int, float] = {}
+        self._hold = [0] * num_bands
+        self._occ = [False] * num_bands
+        self._aoa = [random.uniform(12, 348) for _ in range(num_bands)]
+        self._amp = [random.uniform(-62.0, -38.0) for _ in range(num_bands)]
 
     def band_freq(self, index: int) -> float:
         return self.center_freqs[index]
 
+    def _set_hold(self, index: int, occupied: bool, on_ticks: int, off_ticks: int) -> None:
+        self._occ[index] = occupied
+        self._hold[index] = on_ticks if occupied else off_ticks
+        if occupied:
+            self._aoa[index] = (self._aoa[index] + random.uniform(-4.0, 4.0)) % 360
+            self._amp[index] = random.uniform(-52.0, -30.0) if index in HIGH_THREAT_BANDS else random.uniform(-68.0, -42.0)
+
     def step(self) -> tuple[list[BandTruth], list[PDW], dict[int, float]]:
+        import time
+
         self.state.tick += 1
         t = self.state.tick
-        occ = [False] * self.num_bands
-
-        # Band 3: periodic search radar (every 4 ticks)
-        if t % 4 == 0:
-            occ[3] = True
-        # Band 7: frequency-agile emitter
-        if random.random() > 0.4:
-            occ[7] = True
-        # Band 12: short-pulse threat (two-tick burst every 6)
-        if t % 6 in (0, 1):
-            occ[12] = True
 
         for i in range(self.num_bands):
-            if i in HIGH_THREAT_BANDS:
+            if self._hold[i] > 0:
+                self._hold[i] -= 1
                 continue
-            if random.random() > 0.82:
-                occ[i] = True
+            if i == 3:
+                self._set_hold(i, not self._occ[i], on_ticks=18, off_ticks=22)
+            elif i == 7:
+                self._set_hold(i, not self._occ[i], on_ticks=14, off_ticks=16)
+            elif i == 12:
+                self._set_hold(i, not self._occ[i], on_ticks=8, off_ticks=28)
+            else:
+                start = random.random() > 0.92
+                self._set_hold(i, start, on_ticks=10, off_ticks=36)
+
+        # Safety: keep the three HIGH bands on a visible cadence even after a long off period.
+        if t % 80 == 1 and not self._occ[3]:
+            self._set_hold(3, True, 18, 22)
+        if t % 64 == 7 and not self._occ[7]:
+            self._set_hold(7, True, 14, 16)
+        if t % 96 == 12 and not self._occ[12]:
+            self._set_hold(12, True, 8, 28)
 
         now = time.time()
-        for i, active in enumerate(occ):
+        for i, active in enumerate(self._occ):
             if active and i not in self._onset:
                 self._onset[i] = now
             if not active:
@@ -80,7 +97,7 @@ class RFEmulator:
 
         pdws: list[PDW] = []
         now_us = int(now * 1_000_000)
-        for i, active in enumerate(occ):
+        for i, active in enumerate(self._occ):
             if not active:
                 continue
             self.state.pdw_seq += 1
@@ -89,21 +106,21 @@ class RFEmulator:
                 PDW(
                     pdw_id=self.state.pdw_seq,
                     toa_us=now_us,
-                    center_freq_mhz=self.center_freqs[i] + random.uniform(-2.5, 2.5),
-                    pulse_width_us=12.5 if threat else random.uniform(4.0, 20.0),
-                    aoa_deg=random.uniform(0, 360),
-                    amplitude_db=random.uniform(-55.0, -28.0) if threat else random.uniform(-70.0, -40.0),
-                    emitter_class_id=7 if threat else random.randint(1, 5),
+                    center_freq_mhz=self.center_freqs[i],
+                    pulse_width_us=12.5 if threat else 8.0,
+                    aoa_deg=self._aoa[i],
+                    amplitude_db=self._amp[i],
+                    emitter_class_id=7 if threat else 2,
                 )
             )
 
-        self.state.occupancy = occ
+        self.state.occupancy = list(self._occ)
         self.state.pdws = pdws
         truths = [
             BandTruth(
-                occupied=occ[i],
-                threat_level="HIGH" if i in HIGH_THREAT_BANDS and occ[i] else (
-                    "MEDIUM" if occ[i] else "NONE"
+                occupied=self._occ[i],
+                threat_level="HIGH" if i in HIGH_THREAT_BANDS and self._occ[i] else (
+                    "MEDIUM" if self._occ[i] else "NONE"
                 ),
                 center_freq_mhz=self.center_freqs[i],
             )

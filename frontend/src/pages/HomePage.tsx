@@ -1,11 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
+import { AppNav } from "@/components/AppNav";
 import { Features } from "@/components/blocks/features-8";
-import { InteractiveGlobe } from "@/components/motion/InteractiveGlobe";
 import { PageWrapper } from "@/components/motion/PageWrapper";
 import { TerminalLoader } from "@/components/motion/TerminalLoader";
 import { TopographicBackground } from "@/components/motion/TopographicBackground";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import RotatingEarth from "@/components/ui/wireframe-dotted-globe";
 import { clearSession, getProfile } from "@/lib/auth";
 
 export default function HomePage() {
@@ -23,7 +24,8 @@ export default function HomePage() {
             </div>
             <h1 className="mt-1 text-2xl font-semibold tracking-tight">AEGIS Operator Briefing</h1>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <AppNav />
             <Badge>{profile?.name || "OPERATOR"}</Badge>
             <Button
               variant="outline"
@@ -44,11 +46,11 @@ export default function HomePage() {
           <Badge className="text-[#00ff66]">Ready for live reception</Badge>
         </div>
 
-        <div className="grid items-start gap-8 lg:grid-cols-2">
-          <InteractiveGlobe />
+        <div className="grid items-center gap-8 lg:grid-cols-2">
+          <RotatingEarth width={560} height={480} className="justify-self-center" />
           <div className="space-y-4">
             <TerminalLoader />
-            <Button variant="phosphor" size="lg" className="w-full" asChild>
+            <Button variant="phosphor" size="lg" className="w-full rounded-2xl" asChild>
               <Link to="/radar">Launch Radar Scope</Link>
             </Button>
             <p className="font-mono text-[10px] uppercase tracking-widest text-[#666]">

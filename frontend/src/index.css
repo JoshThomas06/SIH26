@@ -24,10 +24,11 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --radius-sm: 2px;
-  --radius-md: 2px;
-  --radius-lg: 2px;
-  --radius-xl: 4px;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --color-destructive-foreground: var(--destructive-foreground);
 }
 
 :root {
@@ -46,6 +47,7 @@
   --accent: #1a1a1a;
   --accent-foreground: #ffffff;
   --destructive: #ff2a6d;
+  --destructive-foreground: #ffffff;
   --border: #262626;
   --input: #262626;
   --ring: #00ff66;

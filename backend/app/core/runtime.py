@@ -6,6 +6,7 @@ import asyncio
 import time
 from typing import Any
 
+from app.core.archive import archive
 from app.core.config import settings
 from app.core.scheduler_engine import SchedulerMode, SmartScanMoEScheduler
 from app.data.emulator import HIGH_THREAT_BANDS, RFEmulator
@@ -27,6 +28,7 @@ class SimulationRuntime:
         self._pending_onsets: dict[int, float] = {}
         self.clients: set[Any] = set()
         self._task: asyncio.Task[None] | None = None
+        self._last_xai_key = ""
 
     async def run_loop(self) -> None:
         period = 1.0 / settings.telemetry_hz
@@ -74,6 +76,7 @@ class SimulationRuntime:
         }
 
     def reset(self) -> None:
+        archive.close()
         self.emulator = RFEmulator()
         mode = self.scheduler.mode
         weights = (
@@ -92,16 +95,23 @@ class SimulationRuntime:
         self.intercept_errors_ms = []
         self.reward = 0.0
         self._pending_onsets = {}
+        self._last_xai_key = ""
         self.latest = self._empty_payload()
         self.latest["scheduler_mode"] = mode
         self.latest["running"] = self.running
+        if self.running:
+            archive.start(mode)
 
     def start(self) -> None:
+        if not self.running:
+            self.scheduler.mark_fresh()
+            archive.start(self.scheduler.mode)
         self.running = True
 
     def pause(self) -> None:
         self.running = False
         self.latest["running"] = False
+        archive.close()
 
     def configure(self, **kwargs: Any) -> None:
         self.scheduler.configure(**kwargs)
@@ -155,7 +165,17 @@ class SimulationRuntime:
             self.reward -= 0.4
             status_at_rx = "IDLE"
 
-        intercepted = [p for p in pdws if abs(p.center_freq_mhz - truths[tuned].center_freq_mhz) < 260]
+        xai_key = f"{decision['agent']}:{tuned}"
+        rationale = decision["rationale"]
+        if xai_key != self._last_xai_key:
+            self._last_xai_key = xai_key
+        xai = {
+            "agent": decision["agent"],
+            "action_taken": f"SWEEP_BAND_{tuned + 1}",
+            "rationale": rationale,
+        }
+
+        tracks = pdws[:8]
         band_states = []
         for i, truth in enumerate(truths):
             if i == tuned:
@@ -173,7 +193,7 @@ class SimulationRuntime:
                 {
                     "band_id": i + 1,
                     "center_freq_mhz": truth.center_freq_mhz,
-                    "aoi_ms": round(decision["aoi_states"][i], 1),
+                    "aoi_ms": round(decision["aoi_states"][i] / 40.0) * 40.0,
                     "priority_score": round(decision["priority"][i], 3),
                     "status": status,
                     "threat_level": threat,
@@ -197,15 +217,13 @@ class SimulationRuntime:
                     "amplitude_db": round(p.amplitude_db, 1),
                     "emitter_class_id": p.emitter_class_id,
                 }
-                for p in intercepted[:8]
+                for p in tracks
             ],
-            "explainable_ai_log": {
-                "agent": decision["agent"],
-                "action_taken": f"SWEEP_BAND_{tuned + 1}",
-                "rationale": decision["rationale"],
-            },
+            "explainable_ai_log": xai,
+            "session_id": archive.current["id"] if archive.current else None,
         }
         self.latest = payload
+        archive.record(payload, decision["agent"])
         return payload
 
 
