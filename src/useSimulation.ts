@@ -68,22 +68,39 @@ export const useSimulation = () => {
     const envInterval = setInterval(() => {
       setBands(prevBands => prevBands.map(band => {
         const isThreatBand = band.isKnownThreat;
-        const rand = Math.random();
         
         let newType: EmitterType = 'none';
         let newStrength = 0;
 
-        // Spawn thresholds modulated by config.hostileSpawnRate
-        const hostileChance = isThreatBand ? (1.0 - 0.6 * config.hostileSpawnRate) : (1.0 - 0.15 * config.hostileSpawnRate);
-        const noiseChance = 1.0 - (config.noiseFloor / 100);
+        // Modulate probabilities based on config sliders
+        let hostileProb = isThreatBand ? (0.85 * config.hostileSpawnRate) : (0.2 * config.hostileSpawnRate);
+        let friendlyProb = isThreatBand ? 0.02 : 0.15;
+        const noiseProb = config.noiseFloor / 100;
 
-        if (rand > hostileChance) {
+        // Introduce Signal Persistence (Continuous Transmissions)
+        // If an emitter is already transmitting, it has a high chance to stay on
+        if (band.emitterType === 'hostile') {
+          hostileProb = 0.60; // 60% chance to stay hostile (~3.75s average duration)
+          friendlyProb = 0.0;
+        } else if (band.emitterType === 'friendly') {
+          friendlyProb = 0.60; // 60% chance to stay friendly (~3.75s average duration)
+          hostileProb = 0.0;
+        }
+
+        const roll = Math.random();
+
+        if (roll < hostileProb) {
           newType = 'hostile';
-          newStrength = 70 + Math.random() * 30;
-        } else if (!isThreatBand && rand > (hostileChance + 0.05) && rand > 0.85) {
+          // Jitter the strength slightly if maintaining transmission
+          newStrength = band.emitterType === 'hostile' 
+            ? Math.min(100, Math.max(60, band.signalStrength + (Math.random() * 20 - 10))) 
+            : 70 + Math.random() * 30;
+        } else if (roll < hostileProb + friendlyProb) {
           newType = 'friendly';
-          newStrength = 30 + Math.random() * 50;
-        } else if (rand > noiseChance) {
+          newStrength = band.emitterType === 'friendly'
+            ? Math.min(90, Math.max(40, band.signalStrength + (Math.random() * 20 - 10)))
+            : 40 + Math.random() * 40;
+        } else if (roll < hostileProb + friendlyProb + noiseProb) {
           newType = 'noise';
           newStrength = config.noiseFloor + Math.random() * 20;
         }
@@ -116,7 +133,7 @@ export const useSimulation = () => {
             id: Date.now().toString() + '-' + Math.random().toString(36).substring(2, 9),
             cells: currentBands.map(b => ({ type: b.emitterType, strength: b.signalStrength }))
           };
-          return [newRow, ...prev].slice(0, 30);
+          return [newRow, ...prev].slice(0, 150);
         });
         return currentBands;
       });
@@ -147,16 +164,18 @@ export const useSimulation = () => {
           }
         } else {
           // SMART SCAN LOGIC
+          // Heuristic: Heavily prioritize known threats (quadratic weight) over time since last scan
           let maxScore = -1;
           for (let i = 0; i < NUM_BANDS; i++) {
             if (currentBands[i].isIgnored) continue;
-            const score = threatMemory.current[i] * Math.pow(timeSinceLastScan.current[i], 1.5);
+            const score = (threatMemory.current[i] * threatMemory.current[i] * 200) + timeSinceLastScan.current[i];
             if (score > maxScore) {
               maxScore = score;
               nextIndex = i;
             }
           }
-          if (Math.random() < 0.1) {
+          // Reduce exploration when we have known hot zones to keep time error extremely low
+          if (Math.random() < 0.05) {
             let randNext = Math.floor(Math.random() * NUM_BANDS);
             if (!currentBands[randNext].isIgnored) nextIndex = randNext;
           }
@@ -174,24 +193,26 @@ export const useSimulation = () => {
         let errorMs = 0;
 
         if (isHostile) {
-          threatMemory.current[nextIndex] = Math.min(1.0, threatMemory.current[nextIndex] + 0.2);
+          threatMemory.current[nextIndex] = Math.min(1.0, threatMemory.current[nextIndex] + 0.25);
           if (!scannedBand.hasBeenIntercepted) {
              addLog(`Intercepted HOSTILE signal at ${scannedBand.frequency}`, 'critical');
              if (scannedBand.hostileStartTime) {
                errorMs = Date.now() - scannedBand.hostileStartTime;
                interceptErrors.current.push(errorMs);
-               if (interceptErrors.current.length > 50) interceptErrors.current.shift();
+               if (interceptErrors.current.length > 20) interceptErrors.current.shift();
              }
              newBands[nextIndex] = { ...scannedBand, hasBeenIntercepted: true };
           }
         } else if (isHit) {
-          threatMemory.current[nextIndex] = Math.min(1.0, threatMemory.current[nextIndex] + 0.05);
+          // It is a friendly, which means it is NOT a threat
+          threatMemory.current[nextIndex] = Math.max(0.01, threatMemory.current[nextIndex] - 0.05);
           if (!scannedBand.hasBeenIntercepted) {
              addLog(`Intercepted FRIENDLY signal at ${scannedBand.frequency}`, 'success');
              newBands[nextIndex] = { ...scannedBand, hasBeenIntercepted: true };
           }
         } else {
-          threatMemory.current[nextIndex] = Math.max(0.01, threatMemory.current[nextIndex] - 0.02);
+          // Empty or noise, steep decay
+          threatMemory.current[nextIndex] = Math.max(0.01, threatMemory.current[nextIndex] - 0.15);
         }
 
         setMetrics(prev => {
@@ -224,6 +245,15 @@ export const useSimulation = () => {
     return () => clearInterval(scanTimer);
   }, [isSimulating, strategy, addLog, config.sweepSpeedMs, lockedBandIndex]);
 
+  // Clear running averages when strategy changes so user sees immediate results
+  useEffect(() => {
+    interceptErrors.current = [];
+    setMetrics(prev => ({ ...prev, avgInterceptTimeErrorMs: 0 }));
+  }, [strategy]);
+
+  const rateRef = useRef(metrics.interceptionRate);
+  rateRef.current = metrics.interceptionRate;
+
   // 3. Chart loop
   useEffect(() => {
     if (!isSimulating) return;
@@ -231,13 +261,13 @@ export const useSimulation = () => {
       setChartData(prev => {
         const newData = [...prev, { 
           time: new Date().toLocaleTimeString([], { hour12: false, second: '2-digit', minute: '2-digit' }), 
-          rate: metrics.interceptionRate || 0 
+          rate: rateRef.current || 0 
         }].slice(-20);
         return newData;
       });
     }, 1000);
     return () => clearInterval(chartInterval);
-  }, [isSimulating, metrics.interceptionRate]);
+  }, [isSimulating]);
 
   const toggleSimulation = () => setIsSimulating(!isSimulating);
   const resetSimulation = () => {
