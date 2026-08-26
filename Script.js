@@ -10,6 +10,7 @@
   let running = false;
   let timer = null;
   let elapsedSec = 0;
+  let renderTick = 0;
 
   let bandsState, history, receiverBand, dwellCounter;
   let stats, bandWeight, profiles;
@@ -168,7 +169,8 @@
     const width = canvas.width;
     const height = canvas.height;
     ctx.clearRect(0, 0, width, height);
-    ctx.fillStyle = '#020403';
+    renderTick++;
+    ctx.fillStyle = '#061018';
     ctx.fillRect(0, 0, width, height);
 
     const rowH = height / NUM_BANDS;
@@ -179,16 +181,21 @@
       const x = width - (history.length - c) * colW;
 
       for (let b = 0; b < NUM_BANDS; b++) {
-        let color = '#0c150d';
-        if (col.truth[b]) color = '#5c4200';
-        if (col.scanned === b) color = col.hit ? '#4dff6e' : '#ff3b3b';
+        let color = '#091820';
+        if (col.truth[b]) color = '#6b5018';
+        if (col.scanned === b) color = col.hit ? '#38d9ae' : '#e35d67';
 
         ctx.fillStyle = color;
         ctx.fillRect(x, b * rowH, colW + 0.5, rowH - 1);
+
+        if (col.truth[b] && col.scanned !== b) {
+          ctx.fillStyle = 'rgba(246, 198, 103, 0.16)';
+          ctx.fillRect(x, b * rowH, colW + 0.5, rowH - 1);
+        }
       }
     }
 
-    ctx.strokeStyle = '#1c2b1f';
+    ctx.strokeStyle = 'rgba(112, 201, 232, 0.12)';
     ctx.lineWidth = 1;
     for (let b = 0; b <= NUM_BANDS; b++) {
       ctx.beginPath();
@@ -197,11 +204,27 @@
       ctx.stroke();
     }
 
-    ctx.fillStyle = '#5a6e5c';
+    const sweepX = (renderTick * 2.4) % width;
+    const sweepGlow = ctx.createLinearGradient(sweepX - 18, 0, sweepX + 8, 0);
+    sweepGlow.addColorStop(0, 'rgba(85, 230, 188, 0)');
+    sweepGlow.addColorStop(0.75, 'rgba(85, 230, 188, 0.16)');
+    sweepGlow.addColorStop(1, 'rgba(85, 230, 188, 0.5)');
+    ctx.fillStyle = sweepGlow;
+    ctx.fillRect(sweepX - 18, 0, 26, height);
+    ctx.fillStyle = '#55e6bc';
+    ctx.fillRect(sweepX, 0, 1, height);
+    ctx.fillRect(sweepX - 3, 0, 7, 2);
+
+    ctx.fillStyle = '#6f8d98';
     ctx.font = '9px Consolas, monospace';
     for (let b = 0; b < NUM_BANDS; b++) {
       ctx.fillText('B' + String(b).padStart(2, '0'), 4, b * rowH + rowH * 0.7);
     }
+  }
+
+  function animateWaterfall(){
+    draw();
+    requestAnimationFrame(animateWaterfall);
   }
 
   function updateMetrics(){
@@ -282,4 +305,5 @@
   });
 
   initSim();
+  requestAnimationFrame(animateWaterfall);
 })();
