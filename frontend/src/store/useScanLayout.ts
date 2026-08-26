@@ -7,6 +7,7 @@ export type WidgetId =
   | "matrix"
   | "bearing"
   | "summary"
+  | "intel"
   | "console"
   | "metrics";
 
@@ -25,6 +26,7 @@ export const WIDGET_META: Record<WidgetId, { label: string }> = {
   matrix: { label: "Threat matrix" },
   bearing: { label: "Bearing / range" },
   summary: { label: "AI summary" },
+  intel: { label: "Threat / chatter" },
   console: { label: "MoE terminal" },
   metrics: { label: "Figures of merit" },
 };
@@ -35,12 +37,13 @@ export const DEFAULT_LAYOUT: Record<WidgetId, WidgetRect> = {
   matrix: { x: 67, y: 0, w: 33, h: 44, visible: true },
   waterfall: { x: 0, y: 45, w: 66, h: 28, visible: true },
   bearing: { x: 0, y: 74, w: 66, h: 18, visible: true },
-  summary: { x: 67, y: 45, w: 33, h: 47, visible: true },
+  summary: { x: 67, y: 45, w: 33, h: 22, visible: true },
+  intel: { x: 67, y: 68, w: 33, h: 24, visible: true },
   console: { x: 0, y: 93, w: 49, h: 30, visible: true },
   metrics: { x: 50, y: 93, w: 50, h: 30, visible: true },
 };
 
-const STORAGE_KEY = "aegis-scan-layout-v1";
+const STORAGE_KEY = "aegis-scan-layout-v2";
 
 function readLayout(): Record<WidgetId, WidgetRect> {
   try {

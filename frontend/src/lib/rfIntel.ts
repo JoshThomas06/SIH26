@@ -34,14 +34,15 @@ export function chatterTrend(history: RfSnap[]) {
       0,
     ) / rows.length;
   const delta = avg(recent) - avg(older);
-  if (delta > 0.35) return "INCREASING";
-  if (delta < -0.35) return "DECREASING";
+  if (delta > 0.35) return "ACTIVE";
+  if (delta < -0.35) return "FADING";
   return "STABLE";
 }
 
 export function threatPosture(bands: BandState[], spawn: number) {
   const hot = bands.filter((band) => band.threat_level === "HIGH" && band.status !== "IDLE").length;
   if (spawn >= 0.7 || hot >= 3) return "CRITICAL";
+  if (spawn >= 0.55 || hot >= 2) return "HIGH";
   if (spawn >= 0.3 || hot >= 1) return "MODERATE";
-  return "NOMINAL";
+  return "LOW";
 }

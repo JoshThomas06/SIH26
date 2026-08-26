@@ -34,7 +34,7 @@ export function SpectrumWaterfall() {
     bandStates.forEach((band, index) => {
       const x = index * bandWidth;
       if (band.status === "OCCUPIED" || band.status === "LOCKED") {
-        ctx.fillStyle = band.threat_level === "HIGH" ? "rgb(92,38,48)" : "rgb(90,90,90)";
+        ctx.fillStyle = band.threat_level === "HIGH" ? "rgb(92,38,48)" : "rgb(212,160,40)";
       } else {
         ctx.fillStyle = "rgb(12,12,12)";
       }

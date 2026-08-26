@@ -111,12 +111,14 @@ class SessionArchive:
         metrics = self.current["metrics_end"]
         misses = int(metrics.get("misses") or 0)
         hits = int(metrics.get("hits") or 0)
-        if self._tick % 8 == 0:
+        if self._tick % 4 == 0:
             self.current["samples"].append(
                 {
                     "t": time.time() - self.current["started_at"],
                     "pd": float(metrics.get("probability_of_detection") or 0),
                     "pfa": float(metrics.get("probability_of_false_alarm") or 0),
+                    "pd_window": float(metrics.get("pd_window") or metrics.get("probability_of_detection") or 0),
+                    "pfa_window": float(metrics.get("pfa_window") or metrics.get("probability_of_false_alarm") or 0),
                     "dt": float(metrics.get("avg_intercept_time_error_ms") or 0),
                     "reward": float(metrics.get("current_reward_score") or 0),
                     "hits": hits,

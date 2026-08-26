@@ -124,7 +124,7 @@ export function MetricsHUD() {
           <ExplainCue
             title="Pd trend"
             summary="Grey is cumulative Pd for this run. Green is the last-tick hit rate so you can see Smart Scan vs open-loop while it is still running."
-            detail="Session Pd is hits / (hits + misses) so far, so it moves slowly. Recent Pd uses only the latest telemetry delta, which is why it jumps when the scheduler starts catching (or missing) emitters."
+            detail="Session Pd is hits / (hits + misses) so far, so it moves slowly. Recent Pd is a rolling ~2 s intercept window, which is why it tracks Smart Scan vs open-loop without jumping 0–100 on every hop."
           />
         </CardContent>
       </Card>

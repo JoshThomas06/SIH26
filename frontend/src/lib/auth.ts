@@ -83,10 +83,12 @@ export type RunSession = {
   hits?: number;
   misses?: number;
   summary: string;
-  samples?: Array<{
+    samples?: Array<{
     t: number;
     pd: number;
     pfa: number;
+    pd_window?: number;
+    pfa_window?: number;
     dt: number;
     reward: number;
     hits: number;

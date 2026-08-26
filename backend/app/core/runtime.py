@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import asyncio
+import random
 import time
+from collections import deque
 from typing import Any
 
 from app.core.archive import archive
@@ -36,6 +38,7 @@ class SimulationRuntime:
         self.total_emissions = 0
         self.intercept_errors_ms: list[float] = []
         self.reward = 0.0
+        self._recent: deque[dict[str, int]] = deque(maxlen=32)
         self.sweep_ms = settings.sweep_ms
         self.hostile_spawn = settings.hostile_spawn
         self.noise_floor = settings.noise_floor
@@ -78,6 +81,8 @@ class SimulationRuntime:
             "metrics": {
                 "probability_of_detection": 0.0,
                 "probability_of_false_alarm": 0.0,
+                "pd_window": 0.0,
+                "pfa_window": 0.0,
                 "avg_intercept_time_error_ms": 0.0,
                 "current_reward_score": 0.0,
                 "hits": 0,
@@ -135,14 +140,29 @@ class SimulationRuntime:
         self.reward = 0.0
         self._pending_onsets = {}
         self._last_xai_key = ""
+        self._recent = deque(maxlen=32)
         self.latest = self._empty_payload()
         self.latest["scheduler_mode"] = mode
         self.latest["running"] = self.running
         if self.running:
             archive.start(mode)
 
+    def _reset_fom(self) -> None:
+        self.hits = 0
+        self.misses = 0
+        self.false_alarms = 0
+        self.total_dwells = 0
+        self.total_emissions = 0
+        self.intercept_errors_ms = []
+        self.reward = 0.0
+        self._pending_onsets = {}
+        self._last_xai_key = ""
+        self._recent = deque(maxlen=32)
+
     def start(self) -> None:
         if not self.running:
+            self._reset_fom()
+            self.emulator.scramble()
             self.scheduler.mark_fresh()
             archive.start(self.scheduler.mode)
         self.running = True
@@ -166,6 +186,17 @@ class SimulationRuntime:
             self.sim_speed = max(0.25, min(4.0, float(kwargs.pop("sim_speed"))))
         self.scheduler.configure(**kwargs)
 
+    def _window_rates(self) -> tuple[float, float]:
+        if not self._recent:
+            return 0.0, 0.0
+        hits = sum(row["hit"] for row in self._recent)
+        misses = sum(row["miss"] for row in self._recent)
+        fas = sum(row["fa"] for row in self._recent)
+        denom = hits + misses
+        pd = hits / denom if denom else 0.0
+        pfa = fas / len(self._recent)
+        return pd, pfa
+
     def _metrics(self) -> dict[str, float | int]:
         denom = self.hits + self.misses
         pd = self.hits / denom if denom else 0.0
@@ -175,9 +206,12 @@ class SimulationRuntime:
             if self.intercept_errors_ms
             else 0.0
         )
+        pd_w, pfa_w = self._window_rates()
         return {
             "probability_of_detection": round(pd, 4),
             "probability_of_false_alarm": round(pfa, 4),
+            "pd_window": round(pd_w, 4),
+            "pfa_window": round(pfa_w, 4),
             "avg_intercept_time_error_ms": round(dt, 2),
             "current_reward_score": round(self.reward, 1),
             "hits": self.hits,
@@ -200,8 +234,12 @@ class SimulationRuntime:
         self.total_emissions += active_count
         self.total_dwells += 1
 
+        fa_tick = 0
+        miss_tick = 0
+        hit_tick = 0
         if truths[tuned].occupied:
             self.hits += 1
+            hit_tick = 1
             onset = onsets.get(tuned, now)
             error_ms = max(0.0, (now - onset) * 1000.0)
             self.intercept_errors_ms.append(error_ms)
@@ -210,10 +248,14 @@ class SimulationRuntime:
         else:
             if active_count > 0:
                 self.misses += 1
+                miss_tick = 1
                 self.reward -= 2.5
-            self.false_alarms += 1
-            self.reward -= 0.4
+            if random.random() < (0.04 + 0.55 * self.noise_floor):
+                self.false_alarms += 1
+                fa_tick = 1
+                self.reward -= 0.4
             status_at_rx = "IDLE"
+        self._recent.append({"hit": hit_tick, "miss": miss_tick, "fa": fa_tick})
 
         xai_key = f"{decision['agent']}:{tuned}"
         rationale = decision["rationale"]

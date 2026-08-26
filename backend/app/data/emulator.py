@@ -52,6 +52,16 @@ class RFEmulator:
         self.hostile_spawn = settings.hostile_spawn
         self.noise_floor = settings.noise_floor
 
+    def scramble(self) -> None:
+        """Reseed occupancy so each Initiate produces a distinct Pd/Pfa path."""
+        self._onset.clear()
+        for i in range(self.num_bands):
+            self._occ[i] = False
+            self._hold[i] = random.randint(0, 18)
+            self._aoa[i] = random.uniform(12, 348)
+            self._amp[i] = random.uniform(-62.0, -38.0)
+        self.state.tick = 0
+
     def band_freq(self, index: int) -> float:
         return self.center_freqs[index]
 

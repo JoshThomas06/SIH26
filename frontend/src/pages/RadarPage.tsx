@@ -13,6 +13,7 @@ import { SchedulerModeToggle } from "@/components/tactical/SchedulerModeToggle";
 import { SpectrumAnalyzer } from "@/components/tactical/SpectrumAnalyzer";
 import { SpectrumWaterfall } from "@/components/tactical/SpectrumWaterfall";
 import { TacticalIntel } from "@/components/tactical/TacticalIntel";
+import { TacticalIntelPanel } from "@/components/tactical/TacticalIntelPanel";
 import { ThreatMatrixTable } from "@/components/tactical/ThreatMatrixTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -164,6 +165,7 @@ export default function ScanPage() {
                 <AiSummaryPanel title="AI summary of this scan session" />
               </div>
             ),
+            intel: <TacticalIntelPanel />,
             console: <ExplainableConsole />,
             metrics: (
               <div className="h-full overflow-auto p-2">

@@ -96,6 +96,7 @@ export type TacticalState = {
   };
   pdHistory: number[];
   pdInstantHistory: number[];
+  pdTickWindow: Array<{ h: number; m: number }>;
   bandStates: BandState[];
   latestPDWs: PDWIntercept[];
   aiLogs: string[];
@@ -119,6 +120,7 @@ export const useTacticalStore = create<TacticalState>((set) => ({
   metrics: { pd: 0, pfa: 0, avgInterceptErrorMs: 0, reward: 0, hits: 0, misses: 0 },
   pdHistory: [],
   pdInstantHistory: [],
+  pdTickWindow: [],
   bandStates: IDLE_BANDS,
   latestPDWs: [],
   aiLogs: [],
@@ -138,8 +140,14 @@ export const useTacticalStore = create<TacticalState>((set) => ({
       const misses = Number(metrics.misses || 0);
       const dHits = Math.max(0, hits - state.metrics.hits);
       const dMiss = Math.max(0, misses - state.metrics.misses);
-      const denom = dHits + dMiss;
-      const instant = denom ? dHits / denom : (state.pdInstantHistory.at(-1) ?? 0);
+      const resetRun = hits + misses < state.metrics.hits + state.metrics.misses;
+      const pdTickWindow = resetRun
+        ? [{ h: dHits, m: dMiss }]
+        : [...state.pdTickWindow, { h: dHits, m: dMiss }].slice(-24);
+      const windowHits = pdTickWindow.reduce((sum, row) => sum + row.h, 0);
+      const windowMiss = pdTickWindow.reduce((sum, row) => sum + row.m, 0);
+      const windowDenom = windowHits + windowMiss;
+      const instant = windowDenom ? windowHits / windowDenom : (state.pdInstantHistory.at(-1) ?? pd);
       const envRaw = (raw.env || {}) as Partial<EnvKnobs>;
       const slow = now - state.lastDisplayAt < DISPLAY_MS;
       const incomingBands = Array.isArray(raw.band_states) ? (raw.band_states as BandState[]) : [];
@@ -152,8 +160,6 @@ export const useTacticalStore = create<TacticalState>((set) => ({
       const incoming = (raw.latest_pdw_intercepts as PDWIntercept[]) || [];
       const nextLogs =
         line && line !== state.aiLogs[0] ? [line, ...state.aiLogs].slice(0, 240) : state.aiLogs;
-      const pdHistory = [...state.pdHistory, pd * 100].slice(-72);
-      const pdInstantHistory = [...state.pdInstantHistory, instant * 100].slice(-72);
       const lastSnap = state.rfHistory[0]?.t ?? 0;
       const rfHistory =
         now - lastSnap >= 800
@@ -165,6 +171,16 @@ export const useTacticalStore = create<TacticalState>((set) => ({
               ...state.rfHistory,
             ].slice(0, 60)
           : state.rfHistory;
+      const pdHistory = resetRun
+        ? [pd * 100]
+        : slow
+          ? state.pdHistory
+          : [...state.pdHistory, pd * 100].slice(-72);
+      const pdInstantHistory = resetRun
+        ? [instant * 100]
+        : slow
+          ? state.pdInstantHistory
+          : [...state.pdInstantHistory, instant * 100].slice(-72);
       const base = {
         isConnected: true,
         running: Boolean(raw.running),
@@ -190,6 +206,7 @@ export const useTacticalStore = create<TacticalState>((set) => ({
         },
         pdHistory,
         pdInstantHistory,
+        pdTickWindow,
         aiLogs: nextLogs,
         bandStates,
         rfHistory,

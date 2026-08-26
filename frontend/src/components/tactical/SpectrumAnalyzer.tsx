@@ -55,7 +55,7 @@ export function SpectrumAnalyzer() {
               <span
                 className={cn(
                   "w-full rounded-[1px]",
-                  high && live ? "bg-[#9f2a4a]" : live ? "bg-[#8a8a8a]" : "bg-[#3f3f46]",
+                  high && live ? "bg-[#9f2a4a]" : live ? "bg-[#e0b84a]" : "bg-[#c4942a]",
                 )}
                 style={{ height: `${height}%`, opacity: live ? 0.85 + env.hostile_spawn * 0.15 : 0.35 + env.noise_floor * 0.5 }}
               />

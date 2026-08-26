@@ -47,8 +47,10 @@ export default function AnalyticsPage() {
     () =>
       (active?.samples ?? []).map((sample) => ({
         t: Number(sample.t.toFixed(1)),
-        Pd: sample.pd * 100,
-        Pfa: sample.pfa * 100,
+        Pd: (sample.pd_window ?? sample.pd) * 100,
+        Pfa: (sample.pfa_window ?? sample.pfa) * 100,
+        PdCum: sample.pd * 100,
+        PfaCum: sample.pfa * 100,
         Dt: sample.dt,
         Reward: sample.reward,
       })),
@@ -106,18 +108,18 @@ export default function AnalyticsPage() {
             <Card>
               <CardContent className="h-64 p-4 pt-4">
                 <div className="mb-2 font-mono text-[10px] uppercase tracking-widest text-zinc-400">
-                  Pd / Pfa vs time (s)
+                  Recent Pd / Pfa vs time (s)
                 </div>
                 <ResponsiveContainer width="100%" height="90%">
                   <AreaChart data={chart}>
                     <CartesianGrid stroke="#262626" />
                     <XAxis dataKey="t" stroke="#666" fontSize={10} />
-                    <YAxis stroke="#666" fontSize={10} />
+                    <YAxis domain={[0, 100]} stroke="#666" fontSize={10} />
                     <Tooltip
                       contentStyle={{ background: "#121212", border: "1px solid #262626", borderRadius: 12 }}
                     />
-                    <Area type="monotone" dataKey="Pd" stroke="#00ff66" fill="#00ff66" fillOpacity={0.12} />
-                    <Area type="monotone" dataKey="Pfa" stroke="#ff2a6d" fill="#ff2a6d" fillOpacity={0.08} />
+                    <Area type="monotone" dataKey="Pd" stroke="#00ff66" fill="#00ff66" fillOpacity={0.12} isAnimationActive={false} />
+                    <Area type="monotone" dataKey="Pfa" stroke="#ff2a6d" fill="#ff2a6d" fillOpacity={0.08} isAnimationActive={false} />
                   </AreaChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -131,12 +133,13 @@ export default function AnalyticsPage() {
                     <AreaChart data={chart}>
                       <CartesianGrid stroke="#262626" />
                       <XAxis dataKey="t" stroke="#666" fontSize={10} />
-                      <YAxis stroke="#666" fontSize={10} />
+                      <YAxis yAxisId="dt" stroke="#666" fontSize={10} />
+                      <YAxis yAxisId="rw" orientation="right" stroke="#888" fontSize={10} />
                       <Tooltip
                         contentStyle={{ background: "#121212", border: "1px solid #262626", borderRadius: 12 }}
                       />
-                      <Area type="monotone" dataKey="Dt" stroke="#e4e4e7" fill="#262626" />
-                      <Area type="monotone" dataKey="Reward" stroke="#a1a1aa" fill="transparent" />
+                      <Area yAxisId="dt" type="monotone" dataKey="Dt" stroke="#e4e4e7" fill="#262626" isAnimationActive={false} />
+                      <Area yAxisId="rw" type="monotone" dataKey="Reward" stroke="#f5b642" fill="transparent" isAnimationActive={false} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </CardContent>
