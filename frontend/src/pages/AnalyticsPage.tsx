@@ -58,10 +58,10 @@ export default function AnalyticsPage() {
   return (
     <PageWrapper>
       <TopographicBackground />
-      <div className="relative z-10 mx-auto max-w-6xl px-6 py-8">
+      <div className="relative z-10 mx-auto max-w-6xl px-4 py-8 md:px-6">
         <header className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-[#262626] pb-4">
           <div>
-            <div className="font-mono text-xs uppercase tracking-[0.35em] text-[#a1a1aa]">Post-run intelligence</div>
+            <div className="font-mono text-xs uppercase tracking-[0.35em] text-zinc-400">Post-run intelligence</div>
             <h1 className="mt-1 text-2xl font-semibold">Analytics</h1>
           </div>
           <AppNav />
@@ -69,10 +69,10 @@ export default function AnalyticsPage() {
 
         <div className="grid gap-4 lg:grid-cols-[240px_1fr]">
           <div className="space-y-2">
-            <div className="font-mono text-[10px] uppercase tracking-widest text-[#666]">Run sessions</div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-zinc-400">Run sessions</div>
             {cards.length === 0 ? (
               <Card>
-                <CardContent className="p-4 pt-4 text-sm text-[#a1a1aa]">
+                <CardContent className="p-4 pt-4 text-sm text-zinc-300">
                   No runs archived yet. Open Scan, press Initiate, then Halt to close a session.
                 </CardContent>
               </Card>
@@ -89,10 +89,10 @@ export default function AnalyticsPage() {
                 >
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-mono text-xs text-white">{card.label}</span>
-                    <Badge>{card.status}</Badge>
+                    <Badge className="border-zinc-500 text-zinc-200">{card.status}</Badge>
                   </div>
-                  <p className="mt-1 font-mono text-[10px] text-[#888]">{card.mode}</p>
-                  <p className="mt-1 text-xs text-[#a1a1aa]">
+                  <p className="mt-1 font-mono text-[10px] text-zinc-400">{card.mode}</p>
+                  <p className="mt-1 text-xs text-zinc-300">
                     Pd {((card.pd ?? 0) * 100).toFixed(1)}% · {card.flag_count ?? 0} flags
                   </p>
                 </button>
@@ -105,7 +105,7 @@ export default function AnalyticsPage() {
 
             <Card>
               <CardContent className="h-64 p-4 pt-4">
-                <div className="mb-2 font-mono text-[10px] uppercase tracking-widest text-[#a1a1aa]">
+                <div className="mb-2 font-mono text-[10px] uppercase tracking-widest text-zinc-400">
                   Pd / Pfa vs time (s)
                 </div>
                 <ResponsiveContainer width="100%" height="90%">
@@ -126,7 +126,7 @@ export default function AnalyticsPage() {
             <div className="grid gap-3 md:grid-cols-2">
               <Card>
                 <CardContent className="h-52 p-4 pt-4">
-                  <div className="mb-2 font-mono text-[10px] uppercase tracking-widest text-[#a1a1aa]">Δt and reward</div>
+                  <div className="mb-2 font-mono text-[10px] uppercase tracking-widest text-zinc-400">Δt and reward</div>
                   <ResponsiveContainer width="100%" height="88%">
                     <AreaChart data={chart}>
                       <CartesianGrid stroke="#262626" />
@@ -144,12 +144,12 @@ export default function AnalyticsPage() {
 
               <Card>
                 <CardContent className="p-4 pt-4">
-                  <div className="mb-2 font-mono text-[10px] uppercase tracking-widest text-[#a1a1aa]">
+                  <div className="mb-2 font-mono text-[10px] uppercase tracking-widest text-zinc-400">
                     Flagged instances
                   </div>
-                  <div className="max-h-44 space-y-2 overflow-y-auto [scrollbar-width:thin]">
+                  <div className="aegis-scroll max-h-44 space-y-2 overflow-y-auto">
                     {(active?.flags ?? []).length === 0 ? (
-                      <p className="text-sm text-[#666]">No flags on this run yet.</p>
+                      <p className="text-sm text-zinc-400">No flags on this run yet.</p>
                     ) : (
                       (active?.flags ?? []).map((flag) => (
                         <button
@@ -169,7 +169,7 @@ export default function AnalyticsPage() {
                             <span
                               className={cn(
                                 "font-mono text-[10px]",
-                                flag.severity === "HIGH" ? "text-[#ff2a6d]" : "text-[#a1a1aa]",
+                                flag.severity === "HIGH" ? "text-[#ff2a6d]" : "text-zinc-300",
                               )}
                             >
                               {flag.severity}

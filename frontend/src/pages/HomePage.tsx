@@ -17,7 +17,7 @@ export default function HomePage() {
   return (
     <PageWrapper>
       <TopographicBackground />
-      <div className="scanline-overlay relative z-10 mx-auto max-w-6xl overflow-hidden px-5 py-5 sm:px-6 sm:py-8">
+      <div className="scanline-overlay relative z-10 mx-auto max-w-6xl overflow-hidden px-4 py-5 sm:px-6 sm:py-8">
         <header className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-border/80 pb-5">
           <div>
             <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.35em] text-[#7dffa9]">
@@ -32,6 +32,7 @@ export default function HomePage() {
             <Button
               variant="outline"
               size="sm"
+              className="sj-fill"
               onClick={() => {
                 clearSession();
                 navigate("/login");
@@ -54,7 +55,7 @@ export default function HomePage() {
         </motion.div>
 
         <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-          <RotatingEarth width={560} height={480} className="justify-self-center" />
+          <RotatingEarth width={560} height={480} className="max-w-full justify-self-center" />
           <motion.div
             className="space-y-4"
             initial={{ opacity: 0, x: 18 }}
@@ -62,7 +63,12 @@ export default function HomePage() {
             transition={{ delay: 0.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
             <TerminalLoader />
-            <Button variant="phosphor" size="lg" className="group w-full rounded-2xl shadow-[0_0_28px_rgba(0,255,102,0.14)]" asChild>
+            <Button
+              variant="phosphor"
+              size="lg"
+              className="sj-fill sj-fill-phosphor group w-full rounded-2xl shadow-[0_0_28px_rgba(0,255,102,0.14)]"
+              asChild
+            >
               <Link to="/scan">Launch Scan Console</Link>
             </Button>
             <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">

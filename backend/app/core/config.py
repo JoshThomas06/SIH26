@@ -18,6 +18,7 @@ class Settings(BaseModel):
     sweep_ms: float = _f("AEGIS_SWEEP_MS", "50")
     hostile_spawn: float = _f("AEGIS_HOSTILE_SPAWN", "0.55")
     noise_floor: float = _f("AEGIS_NOISE_FLOOR", "0.12")
+    sim_speed: float = _f("AEGIS_SIM_SPEED", "1")
     epsilon: float = _f("AEGIS_EPSILON", "0.10")
     cors_origins: list[str] = [
         "http://localhost:5173",

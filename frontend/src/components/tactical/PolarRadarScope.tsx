@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { useUiPrefs } from "@/store/useUiPrefs";
 
 const HIGH_MHZ = new Set([2000, 4000, 6500]);
-const SWEEP_STEP = 0.0045;
 const PULSE_MS = 5600;
 const FADE_MS = 5500;
 const BEAM_RAD = 0.14;
@@ -37,36 +36,51 @@ function angAbsDiff(a: number, b: number) {
 
 export function PolarRadarScope() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
   const sweep = useRef(-Math.PI / 2);
   const painted = useRef<Map<number, PaintedBlip>>(new Map());
   const pdws = useTacticalStore((s) => s.latestPDWs);
   const bands = useTacticalStore((s) => s.bandStates);
+  const env = useTacticalStore((s) => s.env);
   const pdwsRef = useRef(pdws);
   const bandsRef = useRef(bands);
+  const envRef = useRef(env);
   const connected = useTacticalStore((s) => s.isConnected);
   const persistCrtDark = useUiPrefs((s) => s.persistCrtDark);
   pdwsRef.current = pdws;
   bandsRef.current = bands;
+  envRef.current = env;
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const wrap = wrapRef.current;
+    if (!canvas || !wrap) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    canvas.width = 440;
-    canvas.height = 400;
     let raf = 0;
 
+    const fit = () => {
+      const w = Math.max(280, wrap.clientWidth);
+      const h = Math.max(220, wrap.clientHeight);
+      canvas.width = w;
+      canvas.height = h;
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(wrap);
+
     const draw = () => {
-      sweep.current += SWEEP_STEP;
+      const liveEnv = envRef.current;
+      const step = ((0.0022 + 0.22 / Math.max(20, liveEnv.sweep_ms)) * Math.max(0.25, liveEnv.sim_speed));
+      sweep.current += step;
       const pulse = (performance.now() / PULSE_MS) % 1;
       const livePdws = pdwsRef.current;
       const liveBands = bandsRef.current;
       const w = canvas.width;
       const h = canvas.height;
       const cx = w / 2;
-      const cy = h / 2 + 6;
-      const radius = 148;
+      const cy = h / 2 + 4;
+      const radius = Math.max(70, Math.min(w, h) / 2 - 36);
 
       ctx.clearRect(0, 0, w, h);
 
@@ -109,13 +123,15 @@ export function PolarRadarScope() {
       ctx.lineTo(cx, cy + radius);
       ctx.stroke();
 
-      ctx.fillStyle = "rgba(0, 255, 102, 0.28)";
-      ctx.font = "8px JetBrains Mono, monospace";
-      ctx.textAlign = "left";
-      ctx.fillText("8 km", cx + 6, cy - radius * 0.25 + 3);
-      ctx.fillText("16 km", cx + 6, cy - radius * 0.5 + 3);
-      ctx.fillText("24 km", cx + 6, cy - radius * 0.75 + 3);
-      ctx.fillText("32 km", cx + 6, cy - radius + 10);
+      const noiseN = Math.round(liveEnv.noise_floor * 48);
+      for (let i = 0; i < noiseN; i++) {
+        const ang = (i * 2.47 + pulse * 6) % (Math.PI * 2);
+        const dist = 0.18 + ((i * 17) % 80) / 100;
+        ctx.globalAlpha = 0.08 + liveEnv.noise_floor * 0.18;
+        ctx.fillStyle = "#6b7280";
+        ctx.fillRect(cx + Math.cos(ang) * radius * dist, cy + Math.sin(ang) * radius * dist, 1.2, 1.2);
+      }
+      ctx.globalAlpha = 1;
 
       for (let i = 0; i < 2; i++) {
         const t = (pulse + i * 0.5) % 1;
@@ -153,6 +169,7 @@ export function PolarRadarScope() {
 
       const now = Date.now();
       const seen = new Set<number>();
+      const spawnBoost = liveEnv.hostile_spawn;
       for (const pdw of livePdws) {
         const id = pdw.trackId ?? pdw.pdw_id;
         seen.add(id);
@@ -179,19 +196,19 @@ export function PolarRadarScope() {
         }
         const alpha = Math.max(0, 1 - age / FADE_MS);
         const color = blip.anomaly ? "#ff2a6d" : "#00ff66";
-        ctx.globalAlpha = alpha;
+        ctx.globalAlpha = alpha * (blip.anomaly ? 0.55 + spawnBoost * 0.45 : 0.7);
         if (blip.anomaly) {
           ctx.beginPath();
-          ctx.arc(blip.x, blip.y, 9, 0, Math.PI * 2);
+          ctx.arc(blip.x, blip.y, 8 + spawnBoost * 4, 0, Math.PI * 2);
           ctx.strokeStyle = "rgba(255, 42, 109, 0.45)";
           ctx.lineWidth = 1;
           ctx.stroke();
         }
         ctx.fillStyle = color;
         ctx.shadowColor = color;
-        ctx.shadowBlur = blip.anomaly ? 10 : 6;
+        ctx.shadowBlur = blip.anomaly ? 8 + spawnBoost * 8 : 5;
         ctx.beginPath();
-        ctx.arc(blip.x, blip.y, blip.anomaly ? 3.2 : 2.3, 0, Math.PI * 2);
+        ctx.arc(blip.x, blip.y, blip.anomaly ? 2.6 + spawnBoost * 1.6 : 2.1, 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
         ctx.globalAlpha = 1;
@@ -201,20 +218,26 @@ export function PolarRadarScope() {
       raf = requestAnimationFrame(draw);
     };
     draw();
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+    };
   }, []);
 
   return (
-    <div className={cn("relative overflow-visible rounded-2xl border border-border px-3 pb-2 pt-3", persistCrtDark ? "crt-persist bg-[#040404]" : "bg-card")}>
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_54%,transparent_0%,transparent_42%,rgba(4,4,4,0.55)_68%,#040404_88%)]" />
-      <div className="relative z-10 mb-1 flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-[#a1a1aa]">
-        <span>360° CRT scope · sweep-paint · N-up</span>
-        <span className={connected ? "text-[#00ff66]" : "text-[#666]"}>
-          {connected ? "System Live" : "Link Down"}
-        </span>
+    <div className={cn("flex h-full min-h-0 flex-col overflow-hidden bg-[#040404]", persistCrtDark && "crt-persist")}>
+      <div className="shrink-0 px-3 pt-2 font-mono text-[10px] uppercase tracking-widest text-[#a1a1aa]">
+        <div className="flex items-center justify-between">
+          <span>360° CRT · beam tied to sweep / speed</span>
+          <span className={connected ? "text-[#00ff66]" : "text-[#666]"}>
+            {connected ? "System Live" : "Link Down"}
+          </span>
+        </div>
       </div>
-      <canvas ref={canvasRef} className="relative z-0 mx-auto block h-auto max-w-full bg-transparent" />
-      <p className="relative z-10 mt-1 text-center font-mono text-[10px] uppercase tracking-widest text-[#555]">
+      <div ref={wrapRef} className="relative min-h-0 flex-1">
+        <canvas ref={canvasRef} className="absolute inset-0 h-full w-full bg-transparent" />
+      </div>
+      <p className="relative z-10 mt-1 shrink-0 pb-2 text-center font-mono text-[10px] uppercase tracking-widest text-zinc-400">
         Blips paint only when the beam crosses bearing · fade ~5.5 s · green intercept · red HIGH
       </p>
     </div>

@@ -20,7 +20,7 @@ export default function ProfilePage() {
   return (
     <PageWrapper>
       <TopographicBackground />
-      <div className="relative z-10 mx-auto max-w-3xl px-6 py-8">
+      <div className="relative z-10 mx-auto max-w-3xl px-4 py-8 md:px-6">
         <header className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
           <div>
             <div className="font-mono text-xs uppercase tracking-[0.35em] text-muted-foreground">Operator profile</div>

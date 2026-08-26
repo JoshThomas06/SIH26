@@ -250,7 +250,11 @@ function InsightCard({
 }) {
   return (
     <motion.div className={cn("col-span-full text-left", className)} whileHover={{ y: -3 }} transition={{ duration: 0.35, ease }}>
-      <Card className="relative h-full overflow-hidden transition-colors duration-300 hover:border-[#525252]" data-insight={id}>
+      <Card
+        className="relative h-full overflow-hidden transition-colors duration-300 hover:border-[#525252]"
+        data-insight={id}
+        data-no-sj-fill=""
+      >
         {children}
       </Card>
     </motion.div>

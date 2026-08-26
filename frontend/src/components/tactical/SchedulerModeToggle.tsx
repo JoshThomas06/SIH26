@@ -60,8 +60,11 @@ export function SchedulerModeToggle() {
             >
               <CardContent className="p-4 pt-4">
                 <Button
-                  variant={active ? "default" : "outline"}
-                  className="mb-2 w-full font-mono text-[10px] uppercase tracking-widest"
+                  variant="outline"
+                  className={cn(
+                    "sj-fill mb-2 w-full font-mono text-[10px] uppercase tracking-widest",
+                    active && "is-active",
+                  )}
                   onClick={(event) => {
                     event.stopPropagation();
                     void apply(item.id);
@@ -69,7 +72,7 @@ export function SchedulerModeToggle() {
                 >
                   {item.title}
                 </Button>
-                <p className="mb-2 font-mono text-[10px] text-[#a1a1aa]">{item.copy}</p>
+                <p className="mb-2 font-mono text-[10px] text-zinc-300">{item.copy}</p>
                 <ExplainCue title={item.title} summary={item.summary} detail={item.detail} />
               </CardContent>
             </Card>

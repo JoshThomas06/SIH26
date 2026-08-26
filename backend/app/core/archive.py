@@ -35,7 +35,7 @@ def compose_summary(session: dict[str, Any], live: bool = False) -> str:
         if mode == "OPEN_LOOP"
         else "Manual stare will starve unwatched slices; return to Smart Scan unless you are locking a known emitter."
         if mode == "MANUAL"
-        else "Let the run accumulate another 20–30 seconds so Pd and Δt separate from the baseline."
+        else "Let the run accumulate another 20-30 seconds so Pd and dt separate from the baseline."
     )
     peak = max((s.get("pd", 0) for s in samples), default=0) * 100
     flag_line = (
@@ -46,7 +46,7 @@ def compose_summary(session: dict[str, Any], live: bool = False) -> str:
     return (
         f"{tense} executed as {_mode_label(mode)}. "
         f"Catch rate (Pd) sits at {pd:.1f}% (peak {peak:.1f}%), with {hits} hits against {misses} misses. "
-        f"False-alarm share is {pfa:.1f}% and mean intercept lag Δt is {dt:.1f} ms. "
+        f"False-alarm share is {pfa:.1f}% and mean intercept lag dt is {dt:.1f} ms. "
         f"Scheduler reward is {reward:.1f}. {flag_line} {outlook}"
     )
 

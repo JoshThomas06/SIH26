@@ -55,9 +55,10 @@ export function MetricsHUD() {
   return (
     <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
       {tiles.map((tile) => (
-        <Card
+        <button
           key={tile.label}
-          className="cursor-pointer transition-colors hover:border-[#525252]"
+          type="button"
+          className="sj-fill rounded-3xl border border-border bg-card p-3 text-left"
           onClick={() =>
             TILE_HELP[tile.label] &&
             show({
@@ -67,12 +68,10 @@ export function MetricsHUD() {
             })
           }
         >
-          <CardContent className="p-3 pt-3">
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">{tile.label}</div>
-            <div className="mt-1 font-mono text-lg text-foreground">{tile.value}</div>
-            <p className="mt-1 font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Open brief</p>
-          </CardContent>
-        </Card>
+          <div className="font-mono text-[10px] uppercase tracking-widest text-zinc-300">{tile.label}</div>
+          <div className="mt-1 font-mono text-lg text-foreground">{tile.value}</div>
+          <p className="mt-1 font-mono text-[9px] uppercase tracking-widest text-zinc-400">Open brief</p>
+        </button>
       ))}
       <Card className="col-span-2 md:col-span-3 xl:col-span-6">
         <CardContent className="space-y-2 p-3 pt-3">

@@ -39,6 +39,7 @@ class SimulationRuntime:
         self.sweep_ms = settings.sweep_ms
         self.hostile_spawn = settings.hostile_spawn
         self.noise_floor = settings.noise_floor
+        self.sim_speed = settings.sim_speed
         self.latest: dict[str, Any] = self._empty_payload()
         self._pending_onsets: dict[int, float] = {}
         self.clients: set[Any] = set()
@@ -52,7 +53,7 @@ class SimulationRuntime:
             else:
                 self.latest["running"] = False
                 self.latest["timestamp_us"] = int(time.time() * 1_000_000)
-            period = max(0.02, min(0.5, self.sweep_ms / 1000.0))
+            period = max(0.01, min(0.8, (self.sweep_ms / 1000.0) / max(0.25, self.sim_speed)))
             await asyncio.sleep(period)
 
     def _empty_payload(self) -> dict[str, Any]:
@@ -94,6 +95,7 @@ class SimulationRuntime:
                 "sweep_ms": getattr(self, "sweep_ms", settings.sweep_ms),
                 "hostile_spawn": getattr(self, "hostile_spawn", settings.hostile_spawn),
                 "noise_floor": getattr(self, "noise_floor", settings.noise_floor),
+                "sim_speed": getattr(self, "sim_speed", settings.sim_speed),
                 "epsilon": getattr(self.scheduler, "epsilon", settings.epsilon),
             },
             "ignored_bands": [],
@@ -104,6 +106,7 @@ class SimulationRuntime:
         spawn = getattr(self, "hostile_spawn", settings.hostile_spawn)
         noise = getattr(self, "noise_floor", settings.noise_floor)
         sweep = getattr(self, "sweep_ms", settings.sweep_ms)
+        speed = getattr(self, "sim_speed", settings.sim_speed)
         epsilon = self.scheduler.epsilon
         self.emulator = RFEmulator()
         self.emulator.hostile_spawn = spawn
@@ -111,6 +114,7 @@ class SimulationRuntime:
         self.hostile_spawn = spawn
         self.noise_floor = noise
         self.sweep_ms = sweep
+        self.sim_speed = speed
         mode = self.scheduler.mode
         weights = (
             self.scheduler.eager_weight,
@@ -158,6 +162,8 @@ class SimulationRuntime:
         if "noise_floor" in kwargs and kwargs["noise_floor"] is not None:
             self.noise_floor = max(0.0, min(0.8, float(kwargs.pop("noise_floor"))))
             self.emulator.noise_floor = self.noise_floor
+        if "sim_speed" in kwargs and kwargs["sim_speed"] is not None:
+            self.sim_speed = max(0.25, min(4.0, float(kwargs.pop("sim_speed"))))
         self.scheduler.configure(**kwargs)
 
     def _metrics(self) -> dict[str, float | int]:
@@ -272,6 +278,7 @@ class SimulationRuntime:
                 "sweep_ms": self.sweep_ms,
                 "hostile_spawn": self.hostile_spawn,
                 "noise_floor": self.noise_floor,
+                "sim_speed": self.sim_speed,
                 "epsilon": self.scheduler.epsilon,
             },
             "ignored_bands": sorted(self.scheduler.ignored),

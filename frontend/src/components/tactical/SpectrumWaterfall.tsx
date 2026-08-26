@@ -1,63 +1,71 @@
 import { useEffect, useRef } from "react";
+import { Download } from "lucide-react";
+import { exportRfHistoryCsv } from "@/lib/rfIntel";
 import { useTacticalStore } from "@/store/useTacticalStore";
 
 export function SpectrumWaterfall() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
   const lastPaint = useRef(0);
   const bandStates = useTacticalStore((s) => s.bandStates);
   const tuned = useTacticalStore((s) => s.activeTunedBand);
+  const rfHistory = useTacticalStore((s) => s.rfHistory);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || bandStates.length === 0) return;
+    const wrap = wrapRef.current;
+    if (!canvas || !wrap || bandStates.length === 0) return;
     const now = performance.now();
     if (now - lastPaint.current < 280) return;
     lastPaint.current = now;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    const { width, height } = canvas;
-    const row = 6;
-    const imageData = ctx.getImageData(0, 0, width, height - row);
+    const w = Math.max(320, wrap.clientWidth);
+    const h = Math.max(160, wrap.clientHeight);
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+    }
+    const row = 5;
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height - row);
     ctx.putImageData(imageData, 0, row);
 
-    const bandWidth = width / bandStates.length;
+    const bandWidth = canvas.width / bandStates.length;
     bandStates.forEach((band, index) => {
       const x = index * bandWidth;
-      const inset = 1.5;
       if (band.status === "OCCUPIED" || band.status === "LOCKED") {
-        ctx.fillStyle = band.threat_level === "HIGH" ? "rgb(140,48,68)" : "rgb(168,168,168)";
+        ctx.fillStyle = band.threat_level === "HIGH" ? "rgb(92,38,48)" : "rgb(90,90,90)";
       } else {
-        ctx.fillStyle = "rgba(18,18,18,0.85)";
+        ctx.fillStyle = "rgb(12,12,12)";
       }
-      ctx.fillRect(x + inset, 1, Math.max(1, bandWidth - inset * 2), row - 2);
-      ctx.strokeStyle = "rgba(255,255,255,0.12)";
-      ctx.lineWidth = 0.6;
-      ctx.strokeRect(x + inset, 1, Math.max(1, bandWidth - inset * 2), row - 2);
+      ctx.fillRect(Math.floor(x) + 1, 0, Math.max(1, Math.floor(bandWidth) - 2), row);
     });
 
     const markerX = tuned * bandWidth;
-    ctx.shadowColor = "#00ff66";
-    ctx.shadowBlur = 8;
-    ctx.fillStyle = "#00ff66";
-    ctx.fillRect(markerX + 1.5, 0, Math.max(2, bandWidth - 3), row);
-    ctx.shadowBlur = 0;
+    ctx.fillStyle = "rgb(70,90,72)";
+    ctx.fillRect(Math.floor(markerX) + 1, 0, Math.max(1, Math.floor(bandWidth) - 2), row);
   }, [bandStates, tuned]);
 
   return (
-    <div className="relative h-80 overflow-hidden rounded-2xl border border-border bg-card p-2 transition-colors hover:border-[#525252]">
-      <div className="absolute top-3 left-4 z-10 flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-        <span className="h-2 w-2 animate-pulse rounded-full bg-[#00ff66]" />
-        Tactical Spectrum Waterfall (0.5 — 18.0 GHz)
+    <div className="flex h-full min-h-0 flex-col bg-[#040404]">
+      <div className="flex shrink-0 items-center justify-between gap-2 px-3 pt-2">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-zinc-300">
+          Tactical spectrum waterfall (0.5 — 18.0 GHz)
+        </div>
+        <button
+          type="button"
+          className="sj-fill relative z-10 rounded border border-zinc-600 px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest text-zinc-200 disabled:opacity-40"
+          disabled={rfHistory.length === 0}
+          onClick={() => exportRfHistoryCsv(rfHistory)}
+        >
+          <span className="inline-flex items-center gap-1">
+            <Download className="size-3" />
+            CSV
+          </span>
+        </button>
       </div>
-      <div className="relative mt-6 h-[calc(100%-1.5rem)]">
-        <canvas
-          ref={canvasRef}
-          width={800}
-          height={300}
-          className="h-full w-full rounded-xl border border-white/10 bg-[#0d0d0d]"
-        />
-        <div className="pointer-events-none absolute inset-0 rounded-xl bg-[repeating-linear-gradient(to_bottom,transparent_0_5px,rgba(0,255,102,0.035)_5px_6px)] mix-blend-screen" />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[#00ff66]/40" />
+      <div ref={wrapRef} className="relative min-h-0 flex-1 p-2">
+        <canvas ref={canvasRef} className="h-full w-full bg-black" />
       </div>
     </div>
   );

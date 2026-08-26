@@ -66,32 +66,27 @@ class RFEmulator:
         import time
 
         self.state.tick += 1
-        t = self.state.tick
 
         for i in range(self.num_bands):
             if self._hold[i] > 0:
                 self._hold[i] -= 1
                 continue
-            if i == 3:
-                stay_or_start = self._occ[i] or random.random() < (0.35 + 0.55 * self.hostile_spawn)
-                self._set_hold(i, stay_or_start, on_ticks=18, off_ticks=22)
-            elif i == 7:
-                stay_or_start = self._occ[i] or random.random() < (0.28 + 0.6 * self.hostile_spawn)
-                self._set_hold(i, stay_or_start, on_ticks=14, off_ticks=16)
-            elif i == 12:
-                stay_or_start = self._occ[i] or random.random() < (0.22 + 0.5 * self.hostile_spawn)
-                self._set_hold(i, stay_or_start, on_ticks=8, off_ticks=28)
+            spawn = max(0.0, min(1.0, self.hostile_spawn))
+            noise = max(0.0, min(0.8, self.noise_floor))
+            if i in HIGH_THREAT_BANDS:
+                if self._occ[i]:
+                    stay = random.random() < (0.25 + 0.65 * spawn)
+                    self._set_hold(i, stay, on_ticks=10 + int(12 * spawn), off_ticks=8 + int(28 * (1 - spawn)))
+                else:
+                    start = random.random() < (0.02 + 0.78 * spawn)
+                    self._set_hold(i, start, on_ticks=8 + int(16 * spawn), off_ticks=14 + int(36 * (1 - spawn)))
             else:
-                start = random.random() < (0.04 + 0.22 * self.noise_floor)
-                self._set_hold(i, start, on_ticks=10, off_ticks=36)
-
-        # Safety: keep the three HIGH bands on a visible cadence even after a long off period.
-        if t % 80 == 1 and not self._occ[3]:
-            self._set_hold(3, True, 18, 22)
-        if t % 64 == 7 and not self._occ[7]:
-            self._set_hold(7, True, 14, 16)
-        if t % 96 == 12 and not self._occ[12]:
-            self._set_hold(12, True, 8, 28)
+                if self._occ[i]:
+                    stay = random.random() < (0.15 + 0.55 * noise)
+                    self._set_hold(i, stay, on_ticks=6 + int(10 * noise), off_ticks=20)
+                else:
+                    start = random.random() < (0.01 + 0.72 * noise)
+                    self._set_hold(i, start, on_ticks=5 + int(14 * noise), off_ticks=24)
 
         now = time.time()
         for i, active in enumerate(self._occ):

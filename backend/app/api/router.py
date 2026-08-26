@@ -28,6 +28,7 @@ class SchedulerConfig(BaseModel):
     sweep_ms: float | None = Field(default=None, ge=20, le=500)
     hostile_spawn: float | None = Field(default=None, ge=0, le=1)
     noise_floor: float | None = Field(default=None, ge=0, le=0.8)
+    sim_speed: float | None = Field(default=None, ge=0.25, le=4)
     epsilon: float | None = Field(default=None, ge=0, le=0.4)
 
 
@@ -48,6 +49,7 @@ def update_config(
         "sweep_ms": runtime.sweep_ms,
         "hostile_spawn": runtime.hostile_spawn,
         "noise_floor": runtime.noise_floor,
+        "sim_speed": runtime.sim_speed,
         "ignored": sorted(runtime.scheduler.ignored),
     }
 
@@ -114,3 +116,8 @@ def get_session(session_id: str, authorization: str | None = Header(default=None
 @router.get("/health")
 def health() -> dict:
     return {"status": "ok", "service": "aegis-ew-scheduler"}
+
+
+@router.get("/telemetry")
+def telemetry() -> dict:
+    return runtime.latest

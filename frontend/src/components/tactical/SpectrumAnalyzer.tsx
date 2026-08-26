@@ -6,6 +6,7 @@ export function SpectrumAnalyzer() {
   const bands = useTacticalStore((s) => s.bandStates);
   const tuned = useTacticalStore((s) => s.activeTunedBand);
   const running = useTacticalStore((s) => s.running);
+  const env = useTacticalStore((s) => s.env);
   const setSchedulerMode = useTacticalStore((s) => s.setSchedulerMode);
 
   const lockBand = async (index: number) => {
@@ -18,19 +19,21 @@ export function SpectrumAnalyzer() {
   };
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-3">
+    <div className="flex h-full min-h-0 flex-col bg-card p-3">
       <div className="mb-2 flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-        <span>Spectrum analyzer // 16 × 500 MHz hops</span>
+        <span>Spectrum analyzer // spawn {env.hostile_spawn.toFixed(2)} · noise {env.noise_floor.toFixed(2)}</span>
         <span className={running ? "text-[#00ff66]" : "text-muted-foreground"}>
           {running ? "Hopping" : "Idle"}
         </span>
       </div>
-      <div className="relative grid grid-cols-8 gap-1.5">
+      <div className="grid min-h-0 flex-1 grid-cols-8 gap-1">
         {bands.map((band, index) => {
           const active = index === tuned;
           const live = band.status === "OCCUPIED" || band.status === "LOCKED";
           const high = band.threat_level === "HIGH";
-          const height = Math.max(18, Math.min(100, band.priority_score * 100));
+          const noiseH = 10 + env.noise_floor * 55;
+          const liveH = Math.max(28, Math.min(100, band.priority_score * 100 * (0.65 + env.hostile_spawn * 0.55)));
+          const height = live ? (high ? Math.max(liveH, 40 + env.hostile_spawn * 60) : liveH) : noiseH;
           return (
             <button
               key={band.band_id}
@@ -41,24 +44,20 @@ export function SpectrumAnalyzer() {
                 void toggleIgnore(index, Boolean(band.ignored));
               }}
               className={cn(
-                "group relative flex h-36 flex-col justify-end overflow-hidden rounded-md border px-0.5 pb-1 pt-5 transition-colors",
-                band.ignored
-                  ? "border-dashed border-muted-foreground/50 bg-muted/40 opacity-50"
-                  : "border-border bg-[#0d0d0d]",
-                active && "ring-1 ring-[#00ff66]",
-                high && live && "border-[#ff2a6d]/50",
+                "group relative flex min-h-[7rem] flex-col justify-end overflow-hidden rounded-sm border border-black px-0.5 pb-1 pt-4",
+                band.ignored ? "bg-muted/40 opacity-50" : "bg-[#0d0d0d]",
+                active && "outline outline-1 outline-[#3f3f46]",
+                high && live && "border-[#7f1d1d]",
               )}
-              title={`Band ${String(band.band_id).padStart(2, "0")} · ${band.center_freq_mhz} MHz · click lock · right-click ignore`}
+              title={`Band ${String(band.band_id).padStart(2, "0")} · ${band.center_freq_mhz} MHz`}
             >
-              {active && (
-                <span className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-[#00ff66] shadow-[0_0_10px_#00ff66]" />
-              )}
+              {active && <span className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-[#a1a1aa]" />}
               <span
                 className={cn(
-                  "w-full rounded-sm border border-white/10",
-                  high ? "bg-[#ff2a6d]/80" : live ? "bg-[#a1a1aa]" : "bg-[#262626]",
+                  "w-full rounded-[1px]",
+                  high && live ? "bg-[#9f2a4a]" : live ? "bg-[#8a8a8a]" : "bg-[#3f3f46]",
                 )}
-                style={{ height: `${height}%` }}
+                style={{ height: `${height}%`, opacity: live ? 0.85 + env.hostile_spawn * 0.15 : 0.35 + env.noise_floor * 0.5 }}
               />
               <span className="mt-1 font-mono text-[8px] text-muted-foreground">
                 {String(band.band_id).padStart(2, "0")}
@@ -67,9 +66,6 @@ export function SpectrumAnalyzer() {
           );
         })}
       </div>
-      <p className="mt-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-        Click a cell to lock (manual dwell). Right-click to ignore / restore. Green tick = current hop.
-      </p>
     </div>
   );
 }

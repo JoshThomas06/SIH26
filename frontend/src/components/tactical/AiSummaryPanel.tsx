@@ -51,6 +51,7 @@ export function AiSummaryPanel({
             <Button
               variant="outline"
               size="sm"
+              className="sj-fill"
               disabled={!session?.id}
               onClick={() => session && downloadSessionPdf(session, "summary")}
             >
@@ -60,6 +61,7 @@ export function AiSummaryPanel({
             <Button
               variant="outline"
               size="sm"
+              className="sj-fill"
               disabled={!session?.id}
               onClick={() => session && downloadSessionPdf(session, "report")}
             >
@@ -71,7 +73,7 @@ export function AiSummaryPanel({
         <p className="text-sm leading-relaxed text-[#c4c4c8]">{text}</p>
         <button
           type="button"
-          className="font-mono text-[10px] uppercase tracking-widest text-[#888] hover:text-white"
+          className="sj-fill relative z-10 inline-flex rounded-md border border-zinc-600 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-zinc-200"
           onClick={() =>
             show({
               title: "How to read this summary",

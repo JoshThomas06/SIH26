@@ -79,10 +79,10 @@ export function ExplainCue({
   const show = useInsightStore((s) => s.show);
   return (
     <div className="space-y-2">
-      <p className="text-sm leading-relaxed text-[#a1a1aa]">{summary}</p>
+      <p className="text-sm leading-relaxed text-zinc-300">{summary}</p>
       <button
         type="button"
-        className="font-mono text-[10px] uppercase tracking-widest text-[#888] underline-offset-4 hover:text-white hover:underline"
+        className="sj-fill relative z-10 inline-flex rounded-md border border-zinc-600 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-zinc-200"
         onClick={(event) => {
           event.preventDefault();
           event.stopPropagation();

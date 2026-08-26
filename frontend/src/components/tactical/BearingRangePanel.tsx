@@ -6,7 +6,7 @@ export function BearingRangePanel() {
   const running = useTacticalStore((s) => s.running);
 
   return (
-    <Card>
+    <Card className="h-full overflow-auto rounded-none border-0">
       <CardContent className="p-3 pt-3">
         <div className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
           Approximate geolocation from PDW

@@ -23,7 +23,7 @@ const STEPS = [
   },
   {
     title: "5. Waterfall and matrix",
-    body: "Waterfall is time downward, frequency across (16 hops, 0.5–18 GHz). The green tick is the tuned slice. Matrix AoI is age since last visit; HIGH rows must not starve.",
+    body: "Waterfall is time downward, frequency across (16 hops, 0.5–18 GHz). The green tick is the tuned slice. Matrix AoI is age since last visit; HIGH rows must not starve. Export CSV from the waterfall header for RF history.",
   },
   {
     title: "6. Analytics and PDF",
@@ -57,10 +57,10 @@ export default function LearnPage() {
   return (
     <PageWrapper>
       <TopographicBackground />
-      <div className="relative z-10 mx-auto max-w-4xl px-6 py-8">
+      <div className="relative z-10 mx-auto max-w-4xl px-4 py-8 md:px-6">
         <header className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-[#262626] pb-4">
           <div>
-            <div className="font-mono text-xs uppercase tracking-[0.35em] text-[#a1a1aa]">Operator handbook</div>
+            <div className="font-mono text-xs uppercase tracking-[0.35em] text-zinc-400">Operator handbook</div>
             <h1 className="mt-1 text-2xl font-semibold">How to use AEGIS</h1>
           </div>
           <AppNav />
@@ -71,14 +71,14 @@ export default function LearnPage() {
             <Card key={step.title}>
               <CardContent className="p-4 pt-4">
                 <h2 className="text-base font-semibold text-white">{step.title}</h2>
-                <p className="mt-2 text-sm leading-relaxed text-[#a1a1aa]">{step.body}</p>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-300">{step.body}</p>
               </CardContent>
             </Card>
           ))}
         </div>
 
         <h2 className="mt-10 font-mono text-sm uppercase tracking-[0.3em] text-[#e4e4e7]">Terminology</h2>
-        <p className="mt-2 mb-4 text-sm text-[#888]">
+        <p className="mt-2 mb-4 text-sm text-zinc-400">
           Open any term for a slightly longer brief. These are the words used on Scan, Analytics, and the MoE log.
         </p>
         <div className="grid gap-2 sm:grid-cols-2">

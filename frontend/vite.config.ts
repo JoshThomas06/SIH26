@@ -3,6 +3,10 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
+function hush() {
+  return undefined;
+}
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
@@ -12,11 +16,25 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    strictPort: false,
     proxy: {
-      "/api": "http://127.0.0.1:8010",
+      "/api": {
+        target: "http://127.0.0.1:8010",
+        changeOrigin: true,
+        configure: (proxy) => {
+          proxy.on("error", hush);
+        },
+      },
       "/ws": {
-        target: "ws://127.0.0.1:8010",
+        target: "http://127.0.0.1:8010",
         ws: true,
+        changeOrigin: true,
+        configure: (proxy) => {
+          proxy.on("error", hush);
+          proxy.on("proxyReqWs", (_proxyReq, _req, socket) => {
+            socket.on("error", hush);
+          });
+        },
       },
     },
   },
