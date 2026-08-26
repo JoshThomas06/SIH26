@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Pause, Play, RotateCcw } from "lucide-react";
+import { Expand, Pause, Play, Radio, RotateCcw, ShieldCheck, Signal, Wifi } from "lucide-react";
 import { AppNav } from "@/components/AppNav";
 import { PageWrapper } from "@/components/motion/PageWrapper";
 import { AiSummaryPanel } from "@/components/tactical/AiSummaryPanel";
@@ -25,6 +25,11 @@ export default function ScanPage() {
   const connected = useTacticalStore((s) => s.isConnected);
   const mode = useTacticalStore((s) => s.schedulerMode);
   const sweep = useTacticalStore((s) => s.env.sweep_ms);
+  const activeBand = useTacticalStore((s) => s.activeTunedBand);
+  const bandStates = useTacticalStore((s) => s.bandStates);
+  const tracks = useTacticalStore((s) => s.latestPDWs);
+  const ignoredBands = useTacticalStore((s) => s.ignoredBands);
+  const [fullscreen, setFullscreen] = useState(false);
   const [view, setView] = useState<"polar" | "spectrum">("polar");
   const [clock, setClock] = useState(() => new Date().toISOString().slice(11, 19));
 
@@ -34,6 +39,33 @@ export default function ScanPage() {
     }, 1000);
     return () => window.clearInterval(id);
   }, []);
+
+  useEffect(() => {
+    const onFullscreenChange = () => setFullscreen(document.fullscreenElement !== null);
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
+  }, []);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
+      if (event.code === "Space") {
+        event.preventDefault();
+        void commandSimulation(running ? "pause" : "start");
+      }
+      if (event.key.toLowerCase() === "r") void commandSimulation("reset");
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [running]);
+
+  const toggleFullscreen = async () => {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+      return;
+    }
+    await document.documentElement.requestFullscreen();
+  };
 
   return (
     <PageWrapper>
@@ -62,8 +94,39 @@ export default function ScanPage() {
             <Button variant="outline" size="icon" onClick={() => void commandSimulation("reset")}>
               <RotateCcw className="size-4" />
             </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => void toggleFullscreen()}
+              aria-label={fullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+              title={fullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+            >
+              <Expand className="size-4" />
+            </Button>
           </div>
         </header>
+
+        <div className="mb-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="group flex items-center justify-between rounded-2xl border border-border/80 bg-card/75 px-3 py-2 backdrop-blur-sm transition-colors hover:border-[#31503d]">
+            <div className="flex items-center gap-2">
+              <Wifi className={cn("size-4", connected ? "text-[#00ff66]" : "text-[#ff2a6d]")} />
+              <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Link</span>
+            </div>
+            <span className={cn("font-mono text-xs", connected ? "text-[#7dffa9]" : "text-[#ff739d]")}>{connected ? "NOMINAL" : "OFFLINE"}</span>
+          </div>
+          <div className="flex items-center justify-between rounded-2xl border border-border/80 bg-card/75 px-3 py-2 backdrop-blur-sm">
+            <div className="flex items-center gap-2"><Radio className="size-4 text-[#f5b642]" /><span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Tuned band</span></div>
+            <span className="font-mono text-xs text-[#f5c86e]">BAND {String(activeBand + 1).padStart(2, "0")}</span>
+          </div>
+          <div className="flex items-center justify-between rounded-2xl border border-border/80 bg-card/75 px-3 py-2 backdrop-blur-sm">
+            <div className="flex items-center gap-2"><Signal className="size-4 text-[#7dffa9]" /><span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Tracks</span></div>
+            <span className="font-mono text-xs text-foreground">{tracks.length} ACTIVE</span>
+          </div>
+          <div className="flex items-center justify-between rounded-2xl border border-border/80 bg-card/75 px-3 py-2 backdrop-blur-sm">
+            <div className="flex items-center gap-2"><ShieldCheck className="size-4 text-[#a1a1aa]" /><span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Coverage</span></div>
+            <span className="font-mono text-xs text-foreground">{Math.max(0, bandStates.length - ignoredBands.length)}/16</span>
+          </div>
+        </div>
 
         <div className="mb-4">
           <SchedulerModeToggle />

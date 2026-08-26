@@ -148,13 +148,16 @@ export function Features() {
                     <motion.rect
                       key={i}
                       x={i * 12 + 4}
+                      y={10 + (i % 5) * 6}
                       width="8"
+                      height={40 - (i % 5) * 6}
                       rx="1"
                       className={i % 4 === 0 ? "fill-[#e4e4e7]" : "fill-[#262626]"}
                       animate={{
                         y: [10 + (i % 5) * 6, 6 + (i % 3) * 4, 10 + (i % 5) * 6],
-                        height: [40 - (i % 5) * 6, 48 - (i % 4) * 5, 40 - (i % 5) * 6],
+                        scaleY: [0.9, 1.15, 0.9],
                       }}
+                      style={{ transformOrigin: "center bottom" }}
                       transition={{ duration: 1.4 + (i % 5) * 0.15, repeat: Infinity, ease: "easeInOut" }}
                     />
                   ))}

@@ -213,7 +213,7 @@ export function PolarRadarScope() {
           {connected ? "System Live" : "Link Down"}
         </span>
       </div>
-      <canvas ref={canvasRef} className="relative z-0 mx-auto block bg-transparent" />
+      <canvas ref={canvasRef} className="relative z-0 mx-auto block h-auto max-w-full bg-transparent" />
       <p className="relative z-10 mt-1 text-center font-mono text-[10px] uppercase tracking-widest text-[#555]">
         Blips paint only when the beam crosses bearing · fade ~5.5 s · green intercept · red HIGH
       </p>
