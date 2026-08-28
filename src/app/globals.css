@@ -1,0 +1,199 @@
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+@source "./";
+
+/* Tailwind theme: color tokens (so bg-primary/text-foreground resolve to our vars) +
+   breakpoints. @theme inline keeps the var() reference (theme-swappable at runtime). */
+@theme inline {
+  --breakpoint-vp375: 375px;
+  --breakpoint-vp768: 768px;
+  --breakpoint-vp1280: 1280px;
+  --breakpoint-vp1920: 1920px;
+  --breakpoint-md: 572px;
+  --breakpoint-lg: 1025px;
+  --breakpoint-2xl: 1601px;
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-primary: var(--primary);
+  --color-surface: var(--surface);
+  --color-clr-0: var(--clr-0);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-color-002: var(--color-002);
+  --color-color-001: var(--color-001);
+  --color-clr-1: var(--clr-1);
+  --color-clr-2: var(--clr-2);
+  --color-clr-3: var(--clr-3);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-clr-4: var(--clr-4);
+  --color-clr-5: var(--clr-5);
+  --color-clr-6: var(--clr-6);
+  --color-clr-7: var(--clr-7);
+  --color-clr-8: var(--clr-8);
+  --color-clr-9: var(--clr-9);
+  --color-clr-10: var(--clr-10);
+  --color-clr-11: var(--clr-11);
+  --color-clr-12: var(--clr-12);
+  --color-clr-13: var(--clr-13);
+  --color-clr-14: var(--clr-14);
+  --color-clr-15: var(--clr-15);
+  --color-clr-16: var(--clr-16);
+  --color-clr-17: var(--clr-17);
+}
+
+/* Design tokens (values). */
+:root {
+  --background: rgb(0, 0, 0);
+  --foreground: rgb(238, 238, 238);
+  --primary: rgb(0, 255, 0);
+  --border: rgba(0, 0, 0, 0.4);
+  --muted-foreground: rgb(175, 175, 175);
+  --muted: rgb(75, 75, 75);
+  --surface: rgba(237, 237, 237, 0.2);
+  --color-001: rgb(32, 32, 32);
+  --color-002: rgb(125, 125, 125);
+}
+
+:root {
+  /* fonts */
+  --font-body: "Google Sans", sans-serif;
+  --font-001: "Google Sans", sans-serif;
+  /* fontSizes */
+  --font-size-001: 10px;
+  --font-size-002: 12px;
+  --font-size-003: 14px;
+  --font-size-004: 14.2222px;
+  --font-size-005: 21.3333px;
+  --font-size-006: 32px;
+  /* fontWeights */
+  --font-weight-001: 300;
+  --font-weight-002: 400;
+  /* lineHeights */
+  --line-height-001: 13px;
+  --line-height-002: 20.04px;
+  --line-height-003: 19.5556px;
+  --line-height-004: 12px;
+  --line-height-005: 37.344px;
+  --line-height-006: 19.25px;
+  --line-height-007: 18px;
+  --line-height-008: 24.896px;
+  /* spacing */
+  --space-001: 3px;
+  --space-002: 4.44444px;
+  --space-003: normal 6.22222px;
+  --space-004: 10.6667px;
+  --space-005: 12.4444px;
+  --space-006: normal 14.2222px;
+  --space-007: 14.2222px;
+  --space-008: 17.7778px;
+  --space-009: 21.3333px;
+  --space-010: 32px;
+  --space-011: 71.1111px;
+  --space-012: 106.667px;
+  /* radii */
+  --radius-001: 5.33333px;
+  /* zIndices */
+  --z-001: -1;
+  --z-002: 1;
+  --z-003: 3;
+  /* breakpoints */
+  --bp-375: 375px;
+  --bp-768: 768px;
+  --bp-1280: 1280px;
+  --bp-1920: 1920px;
+}
+
+:root {
+  --clr-0: rgba(255, 255, 255, 0.2);
+  --clr-1: rgb(205, 205, 205);
+  --clr-2: rgb(50, 50, 50);
+  --clr-3: rgba(237, 237, 237, 0.4);
+  --clr-4: rgb(4, 4, 4);
+  --clr-5: rgb(38, 36, 3);
+  --clr-6: rgb(217, 207, 16);
+  --clr-7: rgba(205, 205, 205, 0.984);
+  --clr-8: rgb(136, 129, 10);
+  --clr-9: rgba(0, 255, 0, 0.14);
+  --clr-10: rgb(223, 213, 17);
+  --clr-11: rgb(16, 16, 16);
+  --clr-12: rgb(234, 234, 234);
+  --clr-13: rgb(240, 229, 18);
+  --clr-14: rgb(15, 14, 1);
+  --clr-15: rgba(205, 205, 205, 0.016);
+  --clr-16: rgb(120, 114, 9);
+  --clr-17: rgba(0, 255, 0, 0.16);
+}
+
+@layer base {
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; border: 0 solid currentColor; }
+html { -webkit-text-size-adjust: 100%; line-height: normal; }
+body { margin: 0; }
+ul, ol, menu { list-style: none; }
+a { color: inherit; text-decoration: none; }
+button, input, select, textarea, optgroup { font: inherit; color: inherit; background: transparent; border: 0; padding: 0; margin: 0; text-align: inherit; letter-spacing: inherit; }
+button { cursor: pointer; }
+table { border-collapse: separate; border-spacing: 0; }
+img, picture, video, canvas, svg { display: inline-block; }
+/* Lottie runtime fit: the player re-mounts its svg/canvas into an absolute overlay that fills
+   the host's captured (per-viewport, definite) box. Force that runtime media to fit the box so
+   an aspect-mismatched viewBox (e.g. a portrait animation in a shorter, letterboxed source box)
+   can't inflate past the pinned height. Scoped to the runtime-marked host only. */
+[data-ditto-lottie] > div > svg, [data-ditto-lottie] > div > canvas { width: 100%; height: 100%; display: block; }
+h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd { margin: 0; }
+/* Neutralize UA text defaults to inherit so the generator's default-skipping is
+   correct: a property equal to its inherited value is simply not emitted. */
+h1, h2, h3, h4, h5, h6 { font-size: inherit; font-weight: inherit; }
+b, strong, th { font-weight: inherit; }
+em, i, cite, var, dfn, address, q { font-style: inherit; }
+small, big, sub, sup { font-size: inherit; }
+sub, sup { vertical-align: inherit; }
+code, kbd, samp, pre, tt, var { font-family: inherit; font-size: inherit; }
+mark { background-color: transparent; color: inherit; }
+abbr[title] { text-decoration: none; }
+fieldset, legend { min-width: 0; }
+
+/* fonts */
+@font-face {
+  font-family: "ABC Monument Grotesk Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/cloned/fonts/698219fbfc6e.woff2") format("woff2"), url("/assets/cloned/fonts/2c3898e960fc.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Univers Next Pro";
+  font-style: normal;
+  font-weight: 100;
+  font-display: swap;
+  src: url("/assets/cloned/fonts/6a7682b138ba.woff2") format("woff2"), url("/assets/cloned/fonts/912fea0b9f25.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Univers Next Pro";
+  font-style: normal;
+  font-weight: 250;
+  font-display: swap;
+  src: url("/assets/cloned/fonts/7133ea3e2c90.woff2") format("woff2"), url("/assets/cloned/fonts/3456ca9060ab.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Univers Next Pro";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("/assets/cloned/fonts/791f37ddee1e.woff2") format("woff2"), url("/assets/cloned/fonts/9432564f4554.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Univers Next Pro";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/cloned/fonts/341c5c6bf9ad.woff2") format("woff2"), url("/assets/cloned/fonts/5d07ced467d5.woff") format("woff");
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+
+}
+ 
