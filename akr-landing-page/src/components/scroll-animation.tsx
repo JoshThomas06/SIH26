@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { withBase } from "../lib/utils";
 
 export default function ScrollAnimation() {
  const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -32,7 +33,7 @@ export default function ScrollAnimation() {
  img.onload = handleLoad;
  img.onerror = handleLoad;
  
- img.src = `/assets/dragon-radar-frames/frame_${paddedIndex}.webp`;
+ img.src = withBase(`/assets/dragon-radar-frames/frame_${paddedIndex}.webp`);
  
  images.push(img);
  }

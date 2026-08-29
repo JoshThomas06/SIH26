@@ -1,6 +1,7 @@
 import ScrollAnimation from "./components/scroll-animation";
 import HeroVideo from "./components/ui/hero-video";
 import { useEffect } from "react";
+import { withBase } from "./lib/utils";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -132,19 +133,19 @@ export default function Page() {
  <div className="relative w-full">
  <ScrollStack>
  <ScrollStackItem>
- <img src="/images-dash/briefing.png" alt="Briefing" className="w-full h-full object-cover" />
+ <img src={withBase("/images-dash/briefing.png")} alt="Briefing" className="w-full h-full object-cover" />
  </ScrollStackItem>
  <ScrollStackItem>
- <img src="/images-dash/scan.png" alt="Scan" className="w-full h-full object-cover" />
+ <img src={withBase("/images-dash/scan.png")} alt="Scan" className="w-full h-full object-cover" />
  </ScrollStackItem>
  <ScrollStackItem>
- <img src="/images-dash/analytics.png" alt="Analytics" className="w-full h-full object-cover" />
+ <img src={withBase("/images-dash/analytics.png")} alt="Analytics" className="w-full h-full object-cover" />
  </ScrollStackItem>
  <ScrollStackItem>
- <img src="/images-dash/How-to.png" alt="How-to" className="w-full h-full object-cover" />
+ <img src={withBase("/images-dash/How-to.png")} alt="How-to" className="w-full h-full object-cover" />
  </ScrollStackItem>
  <ScrollStackItem>
- <img src="/images-dash/profile.png" alt="Profile" className="w-full h-full object-cover" />
+ <img src={withBase("/images-dash/profile.png")} alt="Profile" className="w-full h-full object-cover" />
  </ScrollStackItem>
  </ScrollStack>
  
@@ -152,7 +153,7 @@ export default function Page() {
  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 px-4 md:px-8 lg:px-12 items-center" data-cid="n134">
  {/* Left Column: Globe Video */}
  <div className="hidden lg:flex lg:col-span-5 items-center justify-center">
- <video src="/videos/globe_final.mp4" autoPlay loop muted playsInline className="w-full h-auto object-contain" />
+ <video src={withBase("/videos/globe_final.mp4")} autoPlay loop muted playsInline className="w-full h-auto object-contain" />
  </div>
  
  {/* Right Column: Metrics */}
@@ -247,7 +248,7 @@ export default function Page() {
  </div>
  </div>
  <div className="h-full block absolute top-0 inset-x-0 -z-1" data-cid="n376">
- <img className="w-full h-full object-cover" data-cid="n377" src="/assets/cloned/images/b8d755616f69.png" alt="" />
+ <img className="w-full h-full object-cover" data-cid="n377" src={withBase("/assets/cloned/images/b8d755616f69.png")} alt="" />
  </div>
  </section>
  <section className="block relative z-1 pb-16 lg:pb-32 -mt-12 lg:-mt-32" data-cid="n378">

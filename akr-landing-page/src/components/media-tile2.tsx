@@ -1,5 +1,5 @@
 import type { MediaTile2Styles } from "../_styles";
-import { cn } from "../lib/utils";
+import { cn, withBase } from "../lib/utils";
 export type MediaTile2Data = {
  href: string;
  srcSet: string;
@@ -17,9 +17,9 @@ export default function MediaTile2({ d, cids, styles }: { d: MediaTile2Data; cid
  <a data-cid={cids[1]} className="flex items-center relative p-3 md:p-4 rounded-2xl gap-x-4 md:gap-x-8 overflow-hidden bg-clr-2 [backdrop-filter:blur(60px)] cursor-pointer hover:bg-white/5 transition-colors" href={d.href}>
  <div data-cid={cids[2]} className="w-16 h-16 md:w-32 md:h-32 lg:w-48 lg:h-48 block relative rounded-lg shrink-0 overflow-hidden aspect-square">
  <picture data-cid={cids[3]} className="inline max-lg:hidden">
- <source data-cid={cids[4]} className="inline max-lg:hidden" sizes="(max-width: 834px) 19.68vw, 30vw" srcSet={d.srcSet} type="image/avif" />
- <source data-cid={cids[5]} className="inline max-lg:hidden" sizes="(max-width: 834px) 19.68vw, 30vw" srcSet={d.srcSet2} type="image/webp" />
- <img data-cid={cids[6]} className={cn("w-full h-full block absolute overflow-clip object-cover", styles.className)} alt={d.alt} height="2430" sizes="(max-width: 834px) 19.68vw, 30vw" src={d.imgSrc} srcSet={d.srcSet3} width="4320" />
+  <source data-cid={cids[4]} className="inline max-lg:hidden" sizes="(max-width: 834px) 19.68vw, 30vw" srcSet={withBase(d.srcSet)} type="image/avif" />
+  <source data-cid={cids[5]} className="inline max-lg:hidden" sizes="(max-width: 834px) 19.68vw, 30vw" srcSet={withBase(d.srcSet2)} type="image/webp" />
+  <img data-cid={cids[6]} className={cn("w-full h-full block absolute overflow-clip object-cover", styles.className)} alt={d.alt} height="2430" sizes="(max-width: 834px) 19.68vw, 30vw" src={withBase(d.imgSrc)} srcSet={withBase(d.srcSet3)} width="4320" />
  </picture>
  </div>
  <div data-cid={cids[7]} className="flex flex-1 flex-col justify-center text-base md:text-xl lg:text-2xl tracking-tight leading-snug pr-12">

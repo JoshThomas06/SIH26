@@ -1,5 +1,5 @@
 import type { FeatureCardStyles } from "../_styles";
-import { cn } from "../lib/utils";
+import { cn, withBase } from "../lib/utils";
 export type FeatureCardData = {
  srcSet: string;
  srcSet2: string;
@@ -18,9 +18,9 @@ export default function FeatureCard({ d, cids, styles }: { d: FeatureCardData; c
  <div data-cid={cids[1]} className="flex flex-col ">
  <div data-cid={cids[2]} className="block w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20">
  <picture data-cid={cids[3]} className="inline">
- <source data-cid={cids[4]} className="inline max-lg:hidden" sizes="(max-width: 834px) 13.56vw, 3.54vw" srcSet={d.srcSet} type="image/avif" />
- <source data-cid={cids[5]} className="inline max-lg:hidden" sizes="(max-width: 834px) 13.56vw, 3.54vw" srcSet={d.srcSet2} type="image/webp" />
- <img data-cid={cids[6]} className={cn("block overflow-clip w-full h-full object-contain", styles.className)} alt={d.alt} height={d.height} sizes="(max-width: 834px) 13.56vw, 3.54vw" src={d.imgSrc} srcSet={d.srcSet3} width={d.width} />
+  <source data-cid={cids[4]} className="inline max-lg:hidden" sizes="(max-width: 834px) 13.56vw, 3.54vw" srcSet={withBase(d.srcSet)} type="image/avif" />
+  <source data-cid={cids[5]} className="inline max-lg:hidden" sizes="(max-width: 834px) 13.56vw, 3.54vw" srcSet={withBase(d.srcSet2)} type="image/webp" />
+  <img data-cid={cids[6]} className={cn("block overflow-clip w-full h-full object-contain", styles.className)} alt={d.alt} height={d.height} sizes="(max-width: 834px) 13.56vw, 3.54vw" src={withBase(d.imgSrc)} srcSet={withBase(d.srcSet3)} width={d.width} />
  </picture>
  </div>
  <div data-cid={cids[7]} className="block mt-8 text-xl md:text-3xl lg:text-4xl tracking-tight leading-tight">

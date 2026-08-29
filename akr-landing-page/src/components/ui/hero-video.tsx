@@ -1,5 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
+import { withBase } from "../../lib/utils";
 
 export default function HeroVideo() {
  const videoRef = useRef<HTMLVideoElement>(null);
@@ -25,7 +26,7 @@ export default function HeroVideo() {
  ref={videoRef}
  autoPlay
  muted
- src="/videos/final-home.mp4" 
+ src={withBase("/videos/final-home.mp4")} 
  className="w-full h-full object-cover max-md:object-[85%_center] md:object-center"
  loop
  playsInline
