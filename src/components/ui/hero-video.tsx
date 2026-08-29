@@ -26,7 +26,7 @@ export default function HeroVideo() {
  autoPlay
  muted
  src="/videos/final-home.mp4" 
- className="w-full h-full object-cover"
+ className="w-full h-full object-cover max-md:object-[85%_center] md:object-center"
  loop
  playsInline
  onPlay={() => setIsPlaying(true)}

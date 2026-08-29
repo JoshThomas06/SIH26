@@ -7,6 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import ScrollStack, { ScrollStackItem } from "./components/ui/ScrollStack";
 import ScrollReveal from "./components/ui/ScrollReveal";
 import GradualBlur from "gradualblur";
+import DevelopersAvatar from "./components/ui/DevelopersAvatar";
 
 import DittoMotion from "./ditto/DittoMotion";
 import Icon from "./svgs/svg-icon";
@@ -34,18 +35,18 @@ const Tile_data: TileData[] = [
  { text: "· Red = illustrative threat corridors" }
 ];
 const FeatureCard_data: FeatureCardData[] = [
- { srcSet: "/assets/cloned/svg/13397f7ceb05.svg 0w, /assets/cloned/svg/13397f7ceb05.svg 25w, /assets/cloned/svg/13397f7ceb05.svg 50w", srcSet2: "/assets/cloned/svg/13397f7ceb05.svg 0w, /assets/cloned/svg/13397f7ceb05.svg 25w, /assets/cloned/svg/13397f7ceb05.svg 50w", alt: "Pd - INTERCEPTION RATE", height: "38", imgSrc: "/assets/cloned/svg/13397f7ceb05.svg", srcSet3: "/assets/cloned/svg/13397f7ceb05.svg 0w, /assets/cloned/svg/13397f7ceb05.svg 25w, /assets/cloned/svg/13397f7ceb05.svg 50w", width: "39", description: "Share of real emitters we actually catch.", title: "Pd - INTERCEPTION RATE" },
- { srcSet: "/assets/cloned/svg/1e4bf1f8c119.svg 0w, /assets/cloned/svg/1e4bf1f8c119.svg 25w, /assets/cloned/svg/1e4bf1f8c119.svg 50w", srcSet2: "/assets/cloned/svg/1e4bf1f8c119.svg 0w, /assets/cloned/svg/1e4bf1f8c119.svg 25w, /assets/cloned/svg/1e4bf1f8c119.svg 50w", alt: "AoI - NO CHANNEL STARVATION", height: "33", imgSrc: "/assets/cloned/svg/1e4bf1f8c119.svg", srcSet3: "/assets/cloned/svg/1e4bf1f8c119.svg 0w, /assets/cloned/svg/1e4bf1f8c119.svg 25w, /assets/cloned/svg/1e4bf1f8c119.svg 50w", width: "33", description: "Quiet bands still get a look before they go stale.", title: "AoI - NO CHANNEL STARVATION" },
- { srcSet: "/assets/cloned/svg/9b525428cd00.svg 0w, /assets/cloned/svg/9b525428cd00.svg 25w, /assets/cloned/svg/9b525428cd00.svg 50w", srcSet2: "/assets/cloned/svg/9b525428cd00.svg 0w, /assets/cloned/svg/9b525428cd00.svg 25w, /assets/cloned/svg/9b525428cd00.svg 50w", alt: "Δt - MINIMISED INTERCEPT TIME", height: "40", imgSrc: "/assets/cloned/svg/9b525428cd00.svg", srcSet3: "/assets/cloned/svg/9b525428cd00.svg 0w, /assets/cloned/svg/9b525428cd00.svg 25w, /assets/cloned/svg/9b525428cd00.svg 50w", width: "51", description: "We reach the emitter sooner than a round-robin sweep.", title: "Δt - MINIMISED INTERCEPT TIME" },
- { srcSet: "/assets/cloned/svg/f1ef468b9563.svg 0w, /assets/cloned/svg/f1ef468b9563.svg 25w, /assets/cloned/svg/f1ef468b9563.svg 50w", srcSet2: "/assets/cloned/svg/f1ef468b9563.svg 0w, /assets/cloned/svg/f1ef468b9563.svg 25w, /assets/cloned/svg/f1ef468b9563.svg 50w", alt: "0.5 — 18.0 GHz - FULL SPECTRUM COVERAGE", height: "39", imgSrc: "/assets/cloned/svg/f1ef468b9563.svg", srcSet3: "/assets/cloned/svg/f1ef468b9563.svg 0w, /assets/cloned/svg/f1ef468b9563.svg 25w, /assets/cloned/svg/f1ef468b9563.svg 50w", width: "33", description: "Sixteen hops cover the whole surveillance envelope.", title: "0.5 — 18.0 GHz - FULL SPECTRUM COVERAGE" }
+ { srcSet: "/assets/cloned/svg/13397f7ceb05.svg 10w, /assets/cloned/svg/13397f7ceb05.svg 25w, /assets/cloned/svg/13397f7ceb05.svg 50w", srcSet2: "/assets/cloned/svg/13397f7ceb05.svg 10w, /assets/cloned/svg/13397f7ceb05.svg 25w, /assets/cloned/svg/13397f7ceb05.svg 50w", alt: "Pd - INTERCEPTION RATE", height: "38", imgSrc: "/assets/cloned/svg/13397f7ceb05.svg", srcSet3: "/assets/cloned/svg/13397f7ceb05.svg 10w, /assets/cloned/svg/13397f7ceb05.svg 25w, /assets/cloned/svg/13397f7ceb05.svg 50w", width: "39", description: "Share of real emitters we actually catch.", title: "Pd - INTERCEPTION RATE" },
+ { srcSet: "/assets/cloned/svg/1e4bf1f8c119.svg 10w, /assets/cloned/svg/1e4bf1f8c119.svg 25w, /assets/cloned/svg/1e4bf1f8c119.svg 50w", srcSet2: "/assets/cloned/svg/1e4bf1f8c119.svg 10w, /assets/cloned/svg/1e4bf1f8c119.svg 25w, /assets/cloned/svg/1e4bf1f8c119.svg 50w", alt: "AoI - NO CHANNEL STARVATION", height: "33", imgSrc: "/assets/cloned/svg/1e4bf1f8c119.svg", srcSet3: "/assets/cloned/svg/1e4bf1f8c119.svg 10w, /assets/cloned/svg/1e4bf1f8c119.svg 25w, /assets/cloned/svg/1e4bf1f8c119.svg 50w", width: "33", description: "Quiet bands still get a look before they go stale.", title: "AoI - NO CHANNEL STARVATION" },
+ { srcSet: "/assets/cloned/svg/9b525428cd00.svg 10w, /assets/cloned/svg/9b525428cd00.svg 25w, /assets/cloned/svg/9b525428cd00.svg 50w", srcSet2: "/assets/cloned/svg/9b525428cd00.svg 10w, /assets/cloned/svg/9b525428cd00.svg 25w, /assets/cloned/svg/9b525428cd00.svg 50w", alt: "Δt - MINIMISED INTERCEPT TIME", height: "40", imgSrc: "/assets/cloned/svg/9b525428cd00.svg", srcSet3: "/assets/cloned/svg/9b525428cd00.svg 10w, /assets/cloned/svg/9b525428cd00.svg 25w, /assets/cloned/svg/9b525428cd00.svg 50w", width: "51", description: "We reach the emitter sooner than a round-robin sweep.", title: "Δt - MINIMISED INTERCEPT TIME" },
+ { srcSet: "/assets/cloned/svg/f1ef468b9563.svg 10w, /assets/cloned/svg/f1ef468b9563.svg 25w, /assets/cloned/svg/f1ef468b9563.svg 50w", srcSet2: "/assets/cloned/svg/f1ef468b9563.svg 10w, /assets/cloned/svg/f1ef468b9563.svg 25w, /assets/cloned/svg/f1ef468b9563.svg 50w", alt: "0.5 — 18.0 GHz - FULL SPECTRUM COVERAGE", height: "39", imgSrc: "/assets/cloned/svg/f1ef468b9563.svg", srcSet3: "/assets/cloned/svg/f1ef468b9563.svg 10w, /assets/cloned/svg/f1ef468b9563.svg 25w, /assets/cloned/svg/f1ef468b9563.svg 50w", width: "33", description: "Sixteen hops cover the whole surveillance envelope.", title: "0.5 — 18.0 GHz - FULL SPECTRUM COVERAGE" }
 ];
 const MediaTile_data: MediaTileData[] = [
  { ariahidden: "true", description: "Detect faster. Reduce stale channels. Explain every scheduling decision. Smart Scan is the proposed control policy: spend dwell time where energy and threat memory say it matters, but force revisits so no slice is abandoned.", srcSet: "/assets/cloned/images/99066b1fb563.avif 200w, /assets/cloned/images/364012611f83.avif 400w", srcSet2: "/assets/cloned/images/dbf2cc8338ad.webp 200w, /assets/cloned/images/0d52a1dd227c.webp 400w", alt: "RESULT", height: "371", imgSrc: "/assets/cloned/images/2564655a08b3.png", srcSet3: "/assets/cloned/images/2299829a65c0.png 200w, /assets/cloned/images/2564655a08b3.png 400w", width: "1551", text: "AEGIS SCHEDULER", text2: "SMART SCAN" }
 ];
 const MediaTile2_data: MediaTile2Data[] = [
- { href: "/expertise/ai-workloads", srcSet: "/assets/cloned/images/c19fc8a9d700.avif 0w, /assets/cloned/images/9dea7394c51d.avif 250w, /assets/cloned/images/b443110320d0.avif 500w", srcSet2: "/assets/cloned/images/cb1561fdce40.webp 0w, /assets/cloned/images/fb5a434f067e.webp 250w, /assets/cloned/images/657d2db66cb2.webp 500w", alt: "AI Workloads Hero", imgSrc: "/assets/cloned/images/b35e2a5e6bd6.jpg", srcSet3: "/assets/cloned/images/c1eb1b9c349e.jpg 0w, /assets/cloned/images/6f70f9f120d5.jpg 250w, /assets/cloned/images/b35e2a5e6bd6.jpg 500w", label: "Ready to scan?", label2: "Initialize AEGIS and enter the live scan console." },
- { href: "/expertise/power-quality", srcSet: "/assets/cloned/images/e4fefb322938.avif 0w, /assets/cloned/images/35bac9a4527c.avif 250w, /assets/cloned/images/4e1c63b39921.avif 500w", srcSet2: "/assets/cloned/images/a616c8fdd91a.webp 0w, /assets/cloned/images/ed7c153e35b0.webp 250w, /assets/cloned/images/7746f4fa6441.webp 500w", alt: "Power Quality Hero", imgSrc: "/assets/cloned/images/0335d7384e0a.jpg", srcSet3: "/assets/cloned/images/3366a0122474.jpg 0w, /assets/cloned/images/d25fe50f1678.jpg 250w, /assets/cloned/images/0335d7384e0a.jpg 500w", label: "Launch Scan Console →", label2: "16 BANDS · 0.5–18 GHz · DUAL-AGENT SMART SCAN" },
- { href: "/expertise/grid-volatility", srcSet: "/assets/cloned/images/e6c2b9496d4d.avif 0w, /assets/cloned/images/7f94ddd28b14.avif 250w, /assets/cloned/images/1278eb5b06ec.avif 500w", srcSet2: "/assets/cloned/images/f277e02ddd44.webp 0w, /assets/cloned/images/ba110bc05ff0.webp 250w, /assets/cloned/images/6f7c4a64ecfe.webp 500w", alt: "Grid Volatility Hero", imgSrc: "/assets/cloned/images/0ecee4f9deaf.jpg", srcSet3: "/assets/cloned/images/907a0982c99f.jpg 0w, /assets/cloned/images/e67216d3c55f.jpg 250w, /assets/cloned/images/0ecee4f9deaf.jpg 500w", label: "AEGIS", label2: "DRDO SIH26055 Prototype" }
+ { href: "/expertise/ai-workloads", srcSet: "/assets/cloned/images/c19fc8a9d700.avif 10w, /assets/cloned/images/9dea7394c51d.avif 250w, /assets/cloned/images/b443110320d0.avif 500w", srcSet2: "/assets/cloned/images/cb1561fdce40.webp 10w, /assets/cloned/images/fb5a434f067e.webp 250w, /assets/cloned/images/657d2db66cb2.webp 500w", alt: "AI Workloads Hero", imgSrc: "/assets/cloned/images/b35e2a5e6bd6.jpg", srcSet3: "/assets/cloned/images/c1eb1b9c349e.jpg 10w, /assets/cloned/images/6f70f9f120d5.jpg 250w, /assets/cloned/images/b35e2a5e6bd6.jpg 500w", label: "Ready to scan?", label2: "Initialize AEGIS and enter the live scan console." },
+ { href: "/expertise/power-quality", srcSet: "/assets/cloned/images/e4fefb322938.avif 10w, /assets/cloned/images/35bac9a4527c.avif 250w, /assets/cloned/images/4e1c63b39921.avif 500w", srcSet2: "/assets/cloned/images/a616c8fdd91a.webp 10w, /assets/cloned/images/ed7c153e35b0.webp 250w, /assets/cloned/images/7746f4fa6441.webp 500w", alt: "Power Quality Hero", imgSrc: "/assets/cloned/images/0335d7384e0a.jpg", srcSet3: "/assets/cloned/images/3366a0122474.jpg 10w, /assets/cloned/images/d25fe50f1678.jpg 250w, /assets/cloned/images/0335d7384e0a.jpg 500w", label: "Launch Scan Console →", label2: "16 BANDS · 0.5–18 GHz · DUAL-AGENT SMART SCAN" },
+ { href: "/expertise/grid-volatility", srcSet: "/assets/cloned/images/e6c2b9496d4d.avif 10w, /assets/cloned/images/7f94ddd28b14.avif 250w, /assets/cloned/images/1278eb5b06ec.avif 500w", srcSet2: "/assets/cloned/images/f277e02ddd44.webp 10w, /assets/cloned/images/ba110bc05ff0.webp 250w, /assets/cloned/images/6f7c4a64ecfe.webp 500w", alt: "Grid Volatility Hero", imgSrc: "/assets/cloned/images/0ecee4f9deaf.jpg", srcSet3: "/assets/cloned/images/907a0982c99f.jpg 10w, /assets/cloned/images/e67216d3c55f.jpg 250w, /assets/cloned/images/0ecee4f9deaf.jpg 500w", label: "AEGIS", label2: "DRDO SIH26055 Prototype" }
 ];
 const MediaLink_data: MediaLinkData[] = [
  { href: "/press/battery-storage-accelerates-from-supporting-role-to-central-infrastructure-for-ai-and-renewable-grid-demands", label: "Battery storage accelerates from supporting role to central infrastructure for AI and renewable grid demands", label2: "August 14, 2026" },
@@ -69,8 +70,8 @@ export default function Page() {
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
     const lenis = new Lenis({
-      lerp: 0.08, // Increased for a slightly snappier feel
-      wheelMultiplier: 1.5, // Increased scroll amount per wheel tick
+      lerp: 0.04, // Lowered for extremely smooth, floaty scrolling
+      wheelMultiplier: 2.5, // Much higher scroll amount per wheel tick
       smoothWheel: true,
     });
 
@@ -94,7 +95,7 @@ export default function Page() {
  <>
  <div className="block" data-cid="n1" id="__nuxt">
  <div className="block" data-cid="n2">
- <div className="bg-primary text-background py-2 px-4 text-xs font-mono z-50 fixed top-0 left-0 right-0 w-full tracking-wide border-b border-background/20 flex flex-col md:flex-row items-center justify-between" data-cid="header-banner">
+ <div className="bg-primary text-background py-2 px-4 text-xs font-mono z-50 sticky top-0 left-0 right-0 w-full tracking-wide border-b border-background/20 flex flex-col md:flex-row items-center justify-between" data-cid="header-banner">
  <div className="flex-1 hidden md:flex items-center gap-2">
  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256" fill="none">
  <path d="M 112 32 L 54.627 32 L 128 105.373 L 201.373 32 L 144 32 L 144 0 L 256 0 L 256 112 L 224 112 L 224 54.627 L 150.627 128 L 224 201.373 L 224 144 L 256 144 L 256 256 L 144 256 L 144 224 L 201.373 224 L 128 150.627 L 54.627 224 L 112 224 L 112 256 L 0 256 L 0 144 L 32 144 L 32 201.373 L 105.373 128 L 32 54.627 L 32 112 L 0 112 L 0 0 L 112 0 Z" fill="currentColor"></path>
@@ -112,7 +113,7 @@ export default function Page() {
  </div>
  </div>
 
- <main className="block relative pt-[52px]" data-cid="n34">
+ <main className="block relative" data-cid="n34">
  <HeroVideo />
  <div className="relative z-20 bg-black">
  <section className="block relative z-3 text-background" data-cid="n108">
@@ -151,7 +152,7 @@ export default function Page() {
  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 px-4 md:px-8 lg:px-12 items-center" data-cid="n134">
  {/* Left Column: Globe Video */}
  <div className="hidden lg:flex lg:col-span-5 items-center justify-center">
- <video src="/videos/globe_final.mp4" autoPlay loop muted playsInline className="w-full h-auto object-contain scale-[1.2]" />
+ <video src="/videos/globe_final.mp4" autoPlay loop muted playsInline className="w-full h-auto object-contain" />
  </div>
  
  {/* Right Column: Metrics */}
@@ -378,6 +379,9 @@ export default function Page() {
  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
  </button>
  </div>
+ 
+ <DevelopersAvatar />
+ 
  </div>
 
   </footer>
