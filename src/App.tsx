@@ -67,7 +67,11 @@ const ListRow2_data: ListRow2Data[] = [
 export default function Page() {
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
-    const lenis = new Lenis();
+    const lenis = new Lenis({
+      lerp: 0.05, // Lower lerp (default 0.1) creates a heavier, smoother inertia feel
+      wheelMultiplier: 0.8, // Slightly slows down the wheel scroll amount for more control
+      smoothWheel: true,
+    });
 
     lenis.on('scroll', ScrollTrigger.update);
 

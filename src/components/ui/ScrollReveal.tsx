@@ -31,8 +31,8 @@ const ScrollReveal: React.FC<ScrollRevealProps> = ({
  blurStrength = 4,
  containerClassName = '',
  textClassName = '',
- rotationEnd = 'bottom bottom',
- wordAnimationEnd = 'bottom bottom',
+ rotationEnd = 'bottom center',
+ wordAnimationEnd = 'bottom center',
  as: Component = 'h2'
 }) => {
  const containerRef = useRef<HTMLHeadingElement>(null);
@@ -79,7 +79,7 @@ const ScrollReveal: React.FC<ScrollRevealProps> = ({
  {
  ease: 'none',
  opacity: 1,
- stagger: 0.05,
+ stagger: 0.2,
  scrollTrigger: {
  trigger: el,
  scroller,
@@ -97,7 +97,7 @@ const ScrollReveal: React.FC<ScrollRevealProps> = ({
  {
  ease: 'none',
  filter: 'blur(0px)',
- stagger: 0.05,
+ stagger: 0.2,
  scrollTrigger: {
  trigger: el,
  scroller,
