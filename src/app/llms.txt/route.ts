@@ -1,7 +1,0 @@
-export const dynamic = "force-static";
-
-export function GET() {
-  return new Response("# AEGIS | The Race is ON for Grid-Safe AI Power\n\nHyperscale power systems for AI and critical infrastructure—energy storage, power electronics, and software delivering grid stability and 99.9% uptime.\n\nThis is a generated ditto.site clone. It preserves captured page content, metadata, route structure, and static assets where available.\n\n## Routes\n\n- [AEGIS | The Race is ON for Grid-Safe AI Power]() - Hyperscale power systems for AI and critical infrastructure—energy storage, power electronics, and software delivering grid stability and 99.9% uptime.\n\n## Captured Content\n\n### AEGIS | The Race is ON for Grid-Safe AI Power\nExpertise Solutions Financing About News Get in touch Perfect Power P e r f e c t P o w e r for AI Factories. f o r A I F a c t o r i e s . AEGIS builds and operates hyperscale power systems to solve the toughest resilience challenges. AEGIS builds and operates hyperscale power systems to solve the toughest resilience challenges. D i s c o v e r A I U P S The first medium voltage UPS purpose-built for grid-safe data centers. AEGIS supplies and operates hyperscale power systems built to meet the world’s most demanding resilience challenges. From AI data centers to mission-critical facilities and grid-scale assets, ON delivers custom solutions powered by patented technology and pro\n", {
-    headers: { "content-type": "text/plain; charset=utf-8" },
-  });
-}
