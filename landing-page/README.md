@@ -12,6 +12,12 @@ A high-performance, visually stunning landing page for **AEGIS: Dual-Agent Smart
 
 <br />
 
+### 🎨 Design Showcase
+
+<video src="final-viewport.mp4" width="100%" controls muted autoplay loop></video>
+
+<br />
+
 <p align="center">
   <img src="Frames/new%20not%20chopped/Law%20Icon.jpeg" alt="Law Icon" width="48%" style="border-radius: 12px; margin-right: 1%;" />
   <img src="Frames/new%20not%20chopped/korone-hololive.gif" alt="Korone GIF" width="48%" style="border-radius: 12px; margin-left: 1%;" />
