@@ -19,8 +19,8 @@ A high-performance, visually stunning landing page for **AEGIS: Dual-Agent Smart
 <br />
 
 <p align="center">
-  <img src="Frames/new%20not%20chopped/Law%20Icon.jpeg" alt="Law Icon" width="48%" style="border-radius: 12px; margin-right: 1%;" />
-  <img src="Frames/new%20not%20chopped/korone-hololive.gif" alt="Korone GIF" width="48%" style="border-radius: 12px; margin-left: 1%;" />
+  <img src="assets/new%20not%20chopped/Law%20Icon.jpeg" alt="Law Icon" width="48%" style="border-radius: 12px; margin-right: 1%;" />
+  <img src="assets/new%20not%20chopped/korone-hololive.gif" alt="Korone GIF" width="48%" style="border-radius: 12px; margin-left: 1%;" />
 </p>
 
 </div>
@@ -60,7 +60,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - `/src/app`: Contains the main application pages, layout, and global styles.
 - `/src/components`: Reusable UI components (Hero Video, Feature Cards, Scroll Animations).
 - `/public`: Static assets including favicons, site icons, and optimized media.
-- `/Frames`: Raw design files, prototypes, and additional reference media.
+- `/assets`: Raw design files, prototypes, and additional reference media.
 
 ---
 <div align="center">

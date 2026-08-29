@@ -384,6 +384,19 @@ export default function Page() {
  
  </div>
 
+  {/* Large Background Text */}
+  <div className="w-full flex justify-center pointer-events-none select-none mt-8 -mb-16 md:-mb-24 opacity-80">
+    <span 
+      className="text-[16vw] font-black uppercase leading-none tracking-tighter text-black"
+      style={{
+        maskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)',
+        WebkitMaskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)'
+      }}
+    >
+      INNOSOLVE
+    </span>
+  </div>
+
   </footer>
  </div>
  </main>
