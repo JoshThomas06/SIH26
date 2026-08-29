@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import ScrollStack, { ScrollStackItem } from "./components/ui/ScrollStack";
 import ScrollReveal from "./components/ui/ScrollReveal";
+import GradualBlur from "gradualblur";
 
 import DittoMotion from "./ditto/DittoMotion";
 import Icon from "./svgs/svg-icon";
@@ -68,8 +69,8 @@ export default function Page() {
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
     const lenis = new Lenis({
-      lerp: 0.05, // Lower lerp (default 0.1) creates a heavier, smoother inertia feel
-      wheelMultiplier: 0.8, // Slightly slows down the wheel scroll amount for more control
+      lerp: 0.08, // Increased for a slightly snappier feel
+      wheelMultiplier: 1.5, // Increased scroll amount per wheel tick
       smoothWheel: true,
     });
 
@@ -115,11 +116,11 @@ export default function Page() {
  <HeroVideo />
  <div className="relative z-20 bg-black">
  <section className="block relative z-3 text-background" data-cid="n108">
- <div className="block py-16 max-md:py-12 md:max-lg:py-20 2xl:py-24" data-cid="n109">
- <div className="grid px-8 gap-x-3.5 grid-cols-24 grid-rows-1 max-md:px-4 max-md:gap-x-1.5 max-lg:grid-cols-2 max-lg:px-[2.05rem] md:max-lg:gap-x-[12.3px] 2xl:px-12 2xl:gap-x-[21.3px]" data-cid="n110">
- <div className="block col-start-1 [grid-column-end:-3] max-lg:col-end-[-1]" data-cid="n111">
+ <div className="block py-12 md:py-16 lg:py-24" data-cid="n109">
+ <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 px-4 md:px-8 lg:px-12" data-cid="n110">
+ <div className="col-span-1 lg:col-span-10" data-cid="n111">
  <div className="block " data-cid="n112">
- <div className="block text-[2.6875rem] leading-[3.125rem] tracking-[-1.71px] max-md:text-[1.75rem] max-md:leading-8 max-md:tracking-[-0.56px] md:max-lg:text-[3.5625rem] md:max-lg:leading-[4.125rem] md:max-lg:tracking-[-1.15px] 2xl:text-[4rem] 2xl:leading-[4.6875rem] 2xl:tracking-[-2.56px]" data-cid="n113">
+ <div className="text-3xl md:text-4xl lg:text-6xl font-normal tracking-tight leading-tight" data-cid="n113">
  A conventional sequential sweep moves through bands in a fixed order. Agile emitters can appear and disappear between visits. AEGIS uses a dual-agent scheduler: EAGER chases active/occupied signals. REVISIT monitors Age of Information and refreshes stale bands. The result: Detect faster. Reduce stale channels. Explain every scheduling decision.
  </div></div></div>
  </div>
@@ -146,15 +147,15 @@ export default function Page() {
  </ScrollStackItem>
  </ScrollStack>
  
- <section className="block pt-16 md:pt-24 pb-[11.1125rem] max-md:pb-50 md:max-lg:pb-[25.6rem] 2xl:pb-[266.7px] relative w-full z-10 overflow-hidden" data-cid="n133">
- <div className="grid px-8 gap-x-3.5 grid-cols-24 grid-rows-1 max-md:px-4 max-md:gap-x-1.5 max-lg:grid-cols-2 max-lg:px-[2.05rem] md:max-lg:gap-x-[12.3px] 2xl:px-12 2xl:gap-x-[21.3px] 2xl:aspect-[3.139]" data-cid="n134">
+ <section className="block py-16 md:py-24 lg:py-32 relative w-full z-10 overflow-hidden" data-cid="n133">
+ <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 px-4 md:px-8 lg:px-12 items-center" data-cid="n134">
  {/* Left Column: Globe Video */}
- <div className="col-start-1 col-end-12 max-lg:hidden flex items-center justify-center">
+ <div className="hidden lg:flex lg:col-span-5 items-center justify-center">
  <video src="/videos/globe_final.mp4" autoPlay loop muted playsInline className="w-full h-auto object-contain scale-[1.2]" />
  </div>
  
  {/* Right Column: Metrics */}
- <div className="w-full grid gap-y-[53.3px] gap-x-3.5 col-start-13 col-end-[-1] max-lg:flex max-lg:flex-col max-md:gap-y-18 max-lg:col-start-1 max-lg:gap-x-[initial] max-lg:grid-rows-[initial] md:max-lg:gap-y-[147.5px] 2xl:gap-y-20 2xl:gap-x-[21.3px] grid-cols-1 lg:grid-cols-2" data-cid="n135">
+ <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:col-span-7" data-cid="n135">
  {FeatureCard_data.map((d, i) => <FeatureCard key={i} d={d} cids={FeatureCard_cids[i]} styles={FeatureCard_styles[i]} />)}
  </div>
  </div>
@@ -167,68 +168,68 @@ export default function Page() {
  enableBlur
  baseRotation={3}
  blurStrength={4}
- textClassName="font-['Google_Sans',sans-serif] tracking-tight leading-snug"
+ textClassName="font-normal font-['Google_Sans',sans-serif] tracking-tight leading-snug"
  >
  A conventional sequential sweep moves through bands in a fixed order. Agile emitters can appear and disappear between visits. AEGIS uses a dual-agent scheduler: EAGER chases active/occupied signals. REVISIT monitors Age of Information and refreshes stale bands. The result: Detect faster. Reduce stale channels. Explain every scheduling decision.
  </ScrollReveal>
  </div>
 
- <section className="block py-[106.7px] text-color-001 bg-foreground max-md:py-30 md:max-lg:py-[15.3625rem] 2xl:py-40" data-cid="n172">
- <div className="grid px-8 gap-x-3.5 grid-cols-24 max-md:px-4 max-md:gap-x-1.5 max-lg:grid-cols-2 md:max-lg:px-[2.05rem] md:max-lg:gap-x-[12.3px] 2xl:px-12 2xl:gap-x-[21.3px]" data-cid="n173">
- <div className="block col-start-1 col-end-[span_5] row-start-1 max-md:mb-10 max-lg:col-end-[-1] max-lg:[grid-row-start:initial] md:max-lg:mb-[5.125rem]" data-cid="n174">
-  <ScrollReveal as="h3" containerClassName="block text-[2.6875rem] leading-[3.125rem] tracking-[-1.71px] max-md:text-[1.75rem] max-md:leading-8 max-md:tracking-[-0.56px] md:max-lg:text-[3.5625rem] md:max-lg:leading-[4.125rem] md:max-lg:tracking-[-1.15px] 2xl:text-[4rem] 2xl:leading-[4.6875rem] 2xl:tracking-[-2.56px]" textClassName="block" data-cid="n175">
+ <section className="block py-16 md:py-24 lg:py-32 text-color-001 bg-foreground" data-cid="n172">
+ <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 px-4 md:px-8 lg:px-12" data-cid="n173">
+ <div className="col-span-1 lg:col-span-5 mb-8 lg:mb-0" data-cid="n174">
+  <ScrollReveal as="h3" containerClassName="block text-3xl md:text-5xl lg:text-6xl font-medium tracking-tight leading-tight" textClassName="block" data-cid="n175">
   C2 OPERATOR CELL
   </ScrollReveal>
  </div>
- <div className="grid col-start-13 col-end-[-1] row-start-1 grid-cols-[minmax(0,_1fr)] grid-rows-1 max-lg:col-start-1 max-md:max-lg:[grid-row-start:initial] md:max-lg:2xl:aspect-[1.904]" data-cid="n176">
+ <div className="grid grid-cols-1 col-span-1 lg:col-span-7" data-cid="n176">
  {MediaTile_data.map((d, i) => <MediaTile key={i} d={d} cids={MediaTile_cids[i]} styles={MediaTile_styles[i]} />)}
  </div>
  </div>
  </section>
- <section className="block pt-[106.7px] pb-[133.3px] bg-color-001 max-md:py-30 md:max-lg:py-[15.3625rem] 2xl:pt-40 2xl:pb-50" data-cid="n225">
- <div className="grid px-8 gap-x-3.5 grid-cols-24 max-md:px-4 max-md:gap-x-1.5 max-lg:grid-cols-2 md:max-lg:px-[2.05rem] md:max-lg:gap-x-[12.3px] 2xl:px-12 2xl:gap-x-[21.3px]" data-cid="n226">
- <div className="block col-start-[span_6] max-lg:col-span-full self-start sticky top-20 lg:sticky lg:top-40 2xl:top-64" data-cid="n227">
+ <section className="block py-16 md:py-24 lg:py-32 bg-color-001" data-cid="n225">
+ <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 px-4 md:px-8 lg:px-12" data-cid="n226">
+ <div className="col-span-1 lg:col-span-4 self-start sticky top-20 lg:top-40" data-cid="n227">
  <div className="block" data-cid="n228">
  <h2 className="flex items-center text-muted-foreground [font-family:'Google_Sans',_sans-serif] text-xs font-normal leading-5 tracking-[-0.48px] uppercase before:content-[''] before:block before:w-1.5 before:h-1.5 before:mr-[5.3px] before:bg-muted-foreground before:rounded-tl-[50%] max-lg:before:mr-[0.4375rem] 2xl:before:mr-2" data-cid="n229" data-component="heading">
  <span className="block">Ready to scan?</span>
  </h2>
  </div>
  <div className="block" data-cid="n243">
- <div className="block mt-[0.725rem] text-[2rem] leading-[2.3125rem] tracking-[-1.28px] max-md:mt-[0.8125rem] max-md:text-[1.75rem] max-md:leading-7 max-md:tracking-[-1.12px] md:max-lg:mt-[1.6625rem] md:max-lg:text-[3.5625rem] md:max-lg:leading-[3.5625rem] md:max-lg:tracking-[-2.29px] 2xl:mt-[17.3px] 2xl:text-5xl 2xl:leading-14 2xl:tracking-[-1.92px] " data-cid="n244">
+ <div className="block mt-4 text-2xl md:text-4xl lg:text-5xl tracking-tight leading-tight" data-cid="n244">
   <ScrollReveal as="span" containerClassName="block" textClassName="block" data-cid="n245">
   Initialize AEGIS and enter the live scan console.
   </ScrollReveal>
   <ScrollReveal as="span" containerClassName="block" textClassName="block" data-cid="n263">
  Elegant SCAN.
- </ScrollReveal>
+  </ScrollReveal>
  </div>
  </div>
  </div>
- <div className="block mt-[26.7px] col-start-13 col-end-[-1] max-md:mt-15 max-lg:col-start-1 md:max-lg:mt-[122.9px] 2xl:mt-10" data-cid="n282">
-  <ScrollReveal as="p" containerClassName="block text-clr-1 text-[1.3125rem] leading-[1.5625rem] tracking-[-0.85px] max-md:text-xl max-md:leading-6 max-md:tracking-[-0.8px] md:max-lg:text-[2.5625rem] md:max-lg:leading-[3.0625rem] md:max-lg:tracking-[-1.64px] 2xl:text-[2rem] 2xl:leading-[2.3125rem] 2xl:tracking-[-1.28px]" textClassName="block" data-cid="n283">
+ <div className="col-span-1 lg:col-span-8 lg:col-start-5 mt-8 lg:mt-0" data-cid="n282">
+  <ScrollReveal as="p" containerClassName="block text-xl md:text-3xl lg:text-4xl text-clr-1 tracking-tight leading-tight" textClassName="block" data-cid="n283">
   We engineer custom solutions designed for the most demanding environments. Our expertise spans three critical problem areas.
   </ScrollReveal>
  </div>
- <div className="flex mt-[53.3px] flex-col gap-y-8 col-start-13 col-end-[-1] max-md:mt-15 max-md:gap-y-4 max-lg:col-start-1 md:max-lg:mt-[122.9px] md:max-lg:gap-y-[2.05rem] 2xl:mt-20 2xl:gap-y-12" data-cid="n284">
+ <div className="flex flex-col gap-8 col-span-1 lg:col-span-8 lg:col-start-5 mt-8" data-cid="n284">
  {MediaTile2_data.map((d, i) => <MediaTile2 key={i} d={d} cids={MediaTile2_cids[i]} styles={MediaTile2_styles[i]} />)}
  </div>
  </div>
  </section>
- <section className="h-200 min-h-screen block relative max-md:h-203 md:max-lg:h-256 2xl:h-270" data-cid="n321">
- <div className="grid h-full px-8 gap-x-3.5 grid-cols-24 max-md:px-4 max-md:gap-x-1.5 max-lg:grid-cols-2 md:max-lg:px-[2.05rem] md:max-lg:gap-x-[12.3px] 2xl:px-12 2xl:gap-x-[21.3px]" data-cid="n322">
- <div className="block my-[106.7px] col-start-13 [grid-column-end:-3] max-md:my-30 max-lg:col-span-full md:max-lg:my-[15.3625rem] 2xl:my-40 self-start sticky top-20 lg:sticky lg:top-40 2xl:top-64" data-cid="n323">
+ <section className="min-h-screen block relative" data-cid="n321">
+ <div className="grid h-full grid-cols-1 lg:grid-cols-12 gap-8 px-4 md:px-8 lg:px-12" data-cid="n322">
+ <div className="col-span-1 lg:col-span-8 lg:col-start-5 my-16 md:my-24 lg:my-32 self-start sticky top-20 lg:top-40" data-cid="n323">
  <div className="block" data-cid="n324">
  <h2 className="flex items-center text-muted-foreground [font-family:'Google_Sans',_sans-serif] text-xs font-normal leading-5 tracking-[-0.48px] uppercase before:content-[''] before:block before:w-1.5 before:h-1.5 before:mr-[5.3px] before:bg-muted-foreground before:rounded-tl-[50%] max-lg:before:mr-[0.4375rem] 2xl:before:mr-2" data-cid="n229" data-component="heading">
  <span className="block">Ready to scan?</span>
  </h2>
  </div>
  <div className="block" data-cid="n341">
-  <ScrollReveal as="div" containerClassName="block mt-8 text-[2rem] leading-[2.3125rem] tracking-[-1.28px] max-md:mt-9 max-md:text-[1.75rem] max-md:leading-7 max-md:tracking-[-1.12px] md:max-lg:mt-[73.7px] md:max-lg:text-[3.5625rem] md:max-lg:leading-[3.5625rem] md:max-lg:tracking-[-2.29px] 2xl:mt-12 2xl:text-5xl 2xl:leading-14 2xl:tracking-[-1.92px]" textClassName="block" data-cid="n342">
+  <ScrollReveal as="div" containerClassName="block mt-8 text-3xl md:text-5xl lg:text-6xl font-medium tracking-tight leading-tight" textClassName="block" data-cid="n342">
   Performance Proven at Scale
   </ScrollReveal>
  </div>
  <div className="block" data-cid="n368">
-  <ScrollReveal as="p" containerClassName="block text-clr-3 text-[2rem] leading-[2.3125rem] tracking-[-1.28px] max-md:text-[1.75rem] max-md:leading-7 max-md:tracking-[-1.12px] md:max-lg:text-[3.5625rem] md:max-lg:leading-[3.5625rem] md:max-lg:tracking-[-2.29px] 2xl:text-5xl 2xl:leading-14 2xl:tracking-[-1.92px]" textClassName="block" data-cid="n369">
+  <ScrollReveal as="p" containerClassName="block text-clr-3 text-2xl md:text-4xl lg:text-5xl tracking-tight leading-tight" textClassName="block" data-cid="n369">
   Built for environments where uptime is non-negotiable, our technology delivers measurable reliability.
   </ScrollReveal>
  </div>
@@ -245,19 +246,19 @@ export default function Page() {
  </div>
  </div>
  <div className="h-full block absolute top-0 inset-x-0 -z-1" data-cid="n376">
- <img className="w-320 h-200 block absolute overflow-clip max-md:w-[23.4375rem] max-md:h-203 md:max-lg:w-192 md:max-lg:h-256 2xl:w-480 2xl:h-270" data-cid="n377" src="/assets/cloned/images/b8d755616f69.png" alt="" />
+ <img className="w-full h-full object-cover" data-cid="n377" src="/assets/cloned/images/b8d755616f69.png" alt="" />
  </div>
  </section>
- <section className="block relative z-1 pb-8 max-md:-mt-27.5 max-md:pb-50 md:max-lg:mt-[-225.3px] md:max-lg:pb-[25.6rem] 2xl:pb-12" data-cid="n378">
- <div className="grid px-8 gap-x-3.5 grid-cols-24 grid-rows-1 max-md:px-4 max-md:gap-x-1.5 max-lg:grid-cols-2 max-lg:px-[2.05rem] md:max-lg:gap-x-[12.3px] 2xl:px-12 2xl:gap-x-[21.3px]" data-cid="n379">
- <div className="grid gap-3.5 col-span-full grid-cols-24 grid-rows-2 max-md:gap-y-4 max-md:gap-x-1.5 max-lg:grid-cols-2 max-lg:grid-rows-4 md:max-lg:gap-y-[2.05rem] md:max-lg:gap-x-[12.3px] 2xl:gap-[21.3px] " data-cid="n380">
- <div className="flex relative p-[42.7px] rounded-[49.8px] flex-col col-start-[span_12] overflow-hidden bg-color-001 max-md:p-4 max-md:rounded-3xl max-lg:col-span-full max-lg:aspect-square md:max-lg:p-[2.05rem] md:max-lg:rounded-[49.2px] 2xl:p-16 2xl:rounded-[74.7px]" data-cid="n381">
+ <section className="block relative z-1 pb-16 lg:pb-32 -mt-12 lg:-mt-32" data-cid="n378">
+ <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 px-4 md:px-8 lg:px-12" data-cid="n379">
+ <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 col-span-1 lg:col-span-12" data-cid="n380">
+ <div className="flex relative p-8 md:p-12 lg:p-16 rounded-3xl flex-col overflow-hidden bg-color-001" data-cid="n381">
  <div className="flex self-end" data-cid="n382">
- <div className="block text-muted-foreground text-[6.6875rem] [font-weight:250] leading-[6.6875rem] tracking-[-8.53px] max-md:text-8xl max-md:leading-24 max-md:tracking-[-7.68px] md:max-lg:text-[12.3125rem] md:max-lg:leading-[12.3125rem] md:max-lg:tracking-[-15.73px] 2xl:text-[10rem] 2xl:leading-40 2xl:tracking-[-12.8px] " data-cid="n383">
+ <div className="block text-muted-foreground text-6xl md:text-8xl lg:text-9xl font-light tracking-tighter leading-none" data-cid="n383">
  16
  </div>
  </div>
- <div className="block mt-[7.1875rem] max-md:mt-[129.3px] md:max-lg:mt-[18.0375rem] 2xl:mt-[11.6375rem]" data-cid="n385">
+ <div className="block mt-16 md:mt-24 lg:mt-32" data-cid="n385">
  <div className="block" data-cid="n386">
  <h3 className="block text-lg leading-[1.3125rem] tracking-[-0.36px] max-md:leading-[1.375rem] md:max-lg:text-[2.3125rem] md:max-lg:leading-[2.8125rem] md:max-lg:tracking-[-0.74px] 2xl:text-[1.6875rem] 2xl:leading-8 2xl:tracking-[-0.53px] " data-cid="n387">
  <span className="block" data-cid="n388">
@@ -274,16 +275,16 @@ export default function Page() {
  </div>
  </div>
  </div>
- <div className="flex relative p-[42.7px] rounded-[49.8px] flex-col col-start-[span_12] overflow-hidden bg-color-001 max-md:p-4 max-md:rounded-3xl max-lg:col-span-full max-lg:aspect-square md:max-lg:p-[2.05rem] md:max-lg:rounded-[49.2px] 2xl:p-16 2xl:rounded-[74.7px]" data-cid="n392">
+ <div className="flex relative p-8 md:p-12 lg:p-16 rounded-3xl flex-col overflow-hidden bg-color-001" data-cid="n392">
  <div className="flex self-end" data-cid="n393">
- <div className="block text-muted-foreground text-[6.6875rem] [font-weight:250] leading-[6.6875rem] tracking-[-8.53px] max-md:text-8xl max-md:leading-24 max-md:tracking-[-7.68px] md:max-lg:text-[12.3125rem] md:max-lg:leading-[12.3125rem] md:max-lg:tracking-[-15.73px] 2xl:text-[10rem] 2xl:leading-40 2xl:tracking-[-12.8px] " data-cid="n394">
+ <div className="block text-muted-foreground text-6xl md:text-8xl lg:text-9xl font-light tracking-tighter leading-none" data-cid="n394">
  850
- <span className="inline-block ml-2.5 align-top text-[2rem] font-light leading-8 tracking-[-1.28px] max-md:ml-[0.6875rem] max-md:text-[1.75rem] max-md:leading-7 max-md:tracking-[-1.12px] md:max-lg:ml-[22.5px] md:max-lg:text-[3.5625rem] md:max-lg:leading-[3.5625rem] md:max-lg:tracking-[-2.29px] 2xl:ml-[14.7px] 2xl:text-5xl 2xl:leading-12 2xl:tracking-[-1.92px]" data-cid="n395">
+ <span className="inline-block ml-2.5 align-top text-2xl md:text-4xl lg:text-5xl font-light tracking-tight" data-cid="n395">
  ms
  </span>
  </div>
  </div>
- <div className="block mt-[7.1875rem] max-md:mt-[129.3px] md:max-lg:mt-[20.85rem] 2xl:mt-[13.1875rem]" data-cid="n396">
+ <div className="block mt-16 md:mt-24 lg:mt-32" data-cid="n396">
  <div className="block" data-cid="n397">
  <h3 className="block text-lg leading-[1.3125rem] tracking-[-0.36px] max-md:leading-[1.375rem] md:max-lg:text-[2.3125rem] md:max-lg:leading-[2.8125rem] md:max-lg:tracking-[-0.74px] 2xl:text-[1.6875rem] 2xl:leading-8 2xl:tracking-[-0.53px] " data-cid="n398">
  <span className="block" data-cid="n399">
@@ -300,14 +301,14 @@ export default function Page() {
  </div>
  </div>
  </div>
- <div className="flex relative p-[42.7px] rounded-[49.8px] flex-col col-start-[span_12] overflow-hidden bg-color-001 max-md:p-4 max-md:rounded-3xl max-lg:col-span-full max-lg:aspect-square md:max-lg:p-[2.05rem] md:max-lg:rounded-[49.2px] 2xl:p-16 2xl:rounded-[74.7px]" data-cid="n403">
+ <div className="flex relative p-8 md:p-12 lg:p-16 rounded-3xl flex-col overflow-hidden bg-color-001" data-cid="n403">
  <div className="flex self-end" data-cid="n404">
- <div className="block text-muted-foreground text-[6.6875rem] [font-weight:250] leading-[6.6875rem] tracking-[-8.53px] max-md:text-8xl max-md:leading-24 max-md:tracking-[-7.68px] md:max-lg:text-[12.3125rem] md:max-lg:leading-[12.3125rem] md:max-lg:tracking-[-15.73px] 2xl:text-[10rem] 2xl:leading-40 2xl:tracking-[-12.8px] " data-cid="n405">
+ <div className="block text-muted-foreground text-6xl md:text-8xl lg:text-9xl font-light tracking-tighter leading-none" data-cid="n405">
  2
  </div>
  <Icon4 cid={"n406"} />
  </div>
- <div className="block mt-[8.4125rem] max-md:mt-[148.5px] md:max-lg:mt-[20.85rem] 2xl:mt-[13.1875rem]" data-cid="n407">
+ <div className="block mt-16 md:mt-24 lg:mt-32" data-cid="n407">
  <div className="block" data-cid="n408">
  <h3 className="block text-lg leading-[1.3125rem] tracking-[-0.36px] max-md:leading-[1.375rem] md:max-lg:text-[2.3125rem] md:max-lg:leading-[2.8125rem] md:max-lg:tracking-[-0.74px] 2xl:text-[1.6875rem] 2xl:leading-8 2xl:tracking-[-0.53px] " data-cid="n409">
  <span className="block" data-cid="n410">
@@ -324,13 +325,13 @@ export default function Page() {
  </div>
  </div>
  </div>
- <div className="flex relative p-[42.7px] rounded-[49.8px] flex-col col-start-[span_12] overflow-hidden bg-color-001 max-md:p-4 max-md:rounded-3xl max-lg:col-span-full max-lg:aspect-square md:max-lg:p-[2.05rem] md:max-lg:rounded-[49.2px] 2xl:p-16 2xl:rounded-[74.7px]" data-cid="n414">
+ <div className="flex relative p-8 md:p-12 lg:p-16 rounded-3xl flex-col overflow-hidden bg-color-001" data-cid="n414">
  <div className="flex self-end" data-cid="n414-top">
- <div className="block text-muted-foreground text-[6.6875rem] [font-weight:250] leading-[6.6875rem] tracking-[-8.53px] max-md:text-8xl max-md:leading-24 max-md:tracking-[-7.68px] md:max-lg:text-[12.3125rem] md:max-lg:leading-[12.3125rem] md:max-lg:tracking-[-15.73px] 2xl:text-[10rem] 2xl:leading-40 2xl:tracking-[-12.8px] ">
+ <div className="block text-muted-foreground text-6xl md:text-8xl lg:text-9xl font-light tracking-tighter leading-none">
  1
  </div>
  </div>
- <div className="block mt-[15.075rem] max-md:mt-[244.5px] md:max-lg:mt-[34.6875rem] 2xl:mt-[23.1875rem]" data-cid="n415">
+ <div className="block mt-16 md:mt-24 lg:mt-32" data-cid="n415">
  <div className="block" data-cid="n416">
  <h3 className="block text-lg leading-[1.3125rem] tracking-[-0.36px] max-md:leading-[1.375rem] md:max-lg:text-[2.3125rem] md:max-lg:leading-[2.8125rem] md:max-lg:tracking-[-0.74px] 2xl:text-[1.6875rem] 2xl:leading-8 2xl:tracking-[-0.53px] " data-cid="n417">
  <span className="block" data-cid="n418">
@@ -379,7 +380,7 @@ export default function Page() {
  </div>
  </div>
 
- </footer>
+  </footer>
  </div>
  </main>
  </div>
@@ -387,6 +388,19 @@ export default function Page() {
  <div className="block" data-cid="n564" id="teleports" />
  {"  "}
  <DittoMotion spec={{"waapi":[],"rotators":[],"reveals":[{"cid":"n38","opacity":"0","transform":"none","transition":"","visibility":"hidden"},{"cid":"n70","opacity":"0","transform":"none","transition":"","visibility":"hidden"},{"cid":"n80","opacity":"0","transform":"none","transition":"","visibility":"hidden"},{"cid":"n106","opacity":"0","transform":"none","transition":"","visibility":"hidden"},{"cid":"n112","opacity":"0","transform":"none","transition":"opacity 0.6s ease, transform 0.6s ease"},{"cid":"n122","opacity":"0","transform":"none","transition":"opacity 0.6s ease, transform 0.6s ease"},{"cid":"n244","opacity":"0","transform":"none","transition":"opacity 0.6s ease, transform 0.6s ease"},{"cid":"n285","opacity":"0","transform":"none","transition":"opacity 0.6s ease, transform 0.6s ease"},{"cid":"n297","opacity":"0","transform":"none","transition":"opacity 0.6s ease, transform 0.6s ease"},{"cid":"n309","opacity":"0","transform":"none","transition":"opacity 0.6s ease, transform 0.6s ease"},{"cid":"n380","opacity":"0","transform":"none","transition":"opacity 0.6s ease, transform 0.6s ease"},{"cid":"n442","opacity":"0","transform":"none","transition":"opacity 0.6s ease, transform 0.6s ease"},{"cid":"n472","opacity":"0.341","transform":"none","transition":"opacity 0.6s ease, transform 0.6s ease"},{"cid":"n479","opacity":"0","transform":"none","transition":"opacity 0.6s ease, transform 0.6s ease"},{"cid":"n486","opacity":"0","transform":"none","transition":"opacity 0.6s ease, transform 0.6s ease"},{"cid":"n493","opacity":"0","transform":"none","transition":"opacity 0.6s ease, transform 0.6s ease"},{"cid":"n500","opacity":"0","transform":"none","transition":"opacity 0.6s ease, transform 0.6s ease"}],"marquees":[]}} />
+
+ <div style={{ position: 'fixed', bottom: 0, left: 0, width: '100%', height: '8rem', zIndex: 50, pointerEvents: 'none' }}>
+    <GradualBlur
+      target="parent"
+      position="bottom"
+      height="100%"
+      strength={3}
+      divCount={5}
+      curve="bezier"
+      exponential={true}
+      opacity={1}
+    />
+ </div>
  </>
  );
 }
