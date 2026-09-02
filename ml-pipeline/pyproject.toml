@@ -1,7 +1,48 @@
 [project]
 name = "ml-pipeline"
 version = "0.1.0"
-description = "Add your description here"
+description = "Smart Scan Strategy for Electronic Warfare - ML-based ES receiver scheduler (SIH26)"
 readme = "README.md"
-requires-python = ">=3.14"
-dependencies = []
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "numpy>=1.26",
+    "pandas>=2.2",
+    "h5py>=3.11",
+    "scipy>=1.13",
+    "matplotlib>=3.8",
+    "tqdm>=4.66",
+    "typer>=0.12",
+    "pydantic>=2.7",
+    "python-dotenv>=1.0",
+    "huggingface-hub>=0.23",
+    "gymnasium>=0.29",
+    "stable-baselines3>=2.3",
+    "torch>=2.3",
+]
+
+[project.scripts]
+ewscan = "ewscan.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.4",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ewscan"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+ignore = ["B008", "RUF059", "RUF046", "C408", "RUF012"]
