@@ -143,7 +143,16 @@ def train_dqn(config: EnvConfig, tc: TrainConfig) -> Path:
 
         if step % 50_000 == 0:
             recent = [r for _, r in episodes[-10:]] or [0.0]
-            print(f"step {step}: eps={eps:.3f} mean_ep_reward(last10)={np.mean(recent):.1f}")
+            print(f"step {step}: eps={eps:.3f} mean_ep_reward(last10)={np.mean(recent):.1f}", flush=True)
+            torch.save(
+                {
+                    "state_dict": net.state_dict(),
+                    "n_bands": config.spectrum.n_bands,
+                    "hidden": 64,
+                    "config": json.loads(config.model_dump_json()),
+                },
+                out / "model_latest.pt",
+            )
 
     model_path = out / "model_final.pt"
     torch.save(

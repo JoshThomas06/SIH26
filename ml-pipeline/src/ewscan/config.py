@@ -63,7 +63,7 @@ class TrainConfig(BaseModel):
     total_timesteps: int = 300_000
     n_envs: int = 4
     learning_rate: float = 3e-4
-    buffer_size: int = 200_000
+    buffer_size: int = 100_000
     batch_size: int = 256
     gamma: float = 0.99
     train_freq: int = 4

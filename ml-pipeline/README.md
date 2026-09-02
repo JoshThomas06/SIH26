@@ -115,6 +115,38 @@ RL learns to sit on productive bands (reward-oriented objective, beating UCB); r
 maximises emitter coverage at the cost of intercept time — the classic EW trade-off the
 scheduler is meant to manage. More training data/steps shifts RL toward the oracle bound.
 
+## Real-data results (TSRD scan mode)
+
+Pipeline run with `--splits validation,test --train-files 60` (560 pulse trains, 1.1 GB),
+grids at 100 bands × 10 000 slots (180 MHz bands, 1 ms slots), DQN trained 800k steps on the
+train split. Test split: 250 episodes available, 25 evaluated; ~33 emitters/episode, ~0.5%
+active band-slots (sparse EME). Reward config: `new_emitter_bonus=3.0, cost_tune=0.02,
+shaping_weight=0.3`.
+
+| strategy | interception ratio | avg intercept time (slots) | intercept rate/s | % correct predictions | avg reward |
+|---|---|---|---|---|---|
+| random | 0.020 | 5528 | 0.08 | 0.006 | −196 |
+| ucb (adaptive bandit) | 0.165 | 5646 | 0.56 | 0.008 | 88 |
+| round_robin (open loop) | 0.288 | 7603 | 0.99 | 0.006 | 70 |
+| **rl (DQN, ours)** | **0.296** | 5851 | **1.09** | **0.037** | **410** |
+| oracle (truth upper bound) | 0.916 | 4416 | 3.02 | 0.277 | 3578 |
+
+The learned scheduler beats the open-loop sweep and the UCB bandit on interception ratio,
+intercept rate, per-slot correctness and reward, while cutting mean intercept time by ~23%
+vs round-robin. The oracle quantifies remaining headroom (better coverage scheduling).
+
+**Periodic-emitter finding**: strict PRI periodicity (`pri_cv < 0.3`) is rare in TSRD
+scan-mode captures (< 0.5 emitters/episode) — real emitter trains are jittered/agile — so the
+analytic EDF scheduler degenerates to sweep-like behaviour here. The analytic optimum and its
+simulation validation hold on genuinely periodic emitters (see tests); on realistic
+environments the learned scheduler is the appropriate tool, which is the point of the
+problem statement.
+
+**Surrogate intercept-time model** (`outputs/surrogate/surrogate.json`): ridge regression on
+emitter features predicts first-intercept time with MAE ≈ 732 slots for round-robin
+(highly predictable) and ≈ 2000 slots for the adaptive strategies (intercept time depends on
+the strategy's own learned priorities, not just emitter parameters).
+
 All outputs (CSV tables, JSON summaries, PNG plots, per-episode logs) go to `outputs/`.
 
 ## Colab / Kaggle GPU training

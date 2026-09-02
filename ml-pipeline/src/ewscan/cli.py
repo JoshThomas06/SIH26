@@ -147,6 +147,9 @@ def train(
     tuning_time_slots: int = typer.Option(1),
     sensitivity_db: float | None = typer.Option(None),
     p_false_alarm: float = typer.Option(0.0),
+    new_emitter_bonus: float = typer.Option(3.0),
+    cost_tune: float = typer.Option(0.02),
+    shaping_weight: float = typer.Option(0.3),
     seed: int = typer.Option(0),
     out_dir: Path = typer.Option(Path("outputs/rl")),
 ) -> None:
@@ -164,6 +167,9 @@ def train(
         str(cache_dir),
         train_split,
     )
+    config.reward.new_emitter_bonus = new_emitter_bonus
+    config.reward.cost_tune = cost_tune
+    config.reward.shaping_weight = shaping_weight
     tc = TrainConfig(
         algo=algo,
         total_timesteps=timesteps,
@@ -189,6 +195,9 @@ def evaluate(
     tuning_time_slots: int = typer.Option(1),
     sensitivity_db: float | None = typer.Option(None),
     p_false_alarm: float = typer.Option(0.0),
+    new_emitter_bonus: float = typer.Option(3.0),
+    cost_tune: float = typer.Option(0.02),
+    shaping_weight: float = typer.Option(0.3),
     dwell_slots: int = typer.Option(10),
     seed: int = typer.Option(0),
     out_dir: Path = typer.Option(Path("outputs/eval")),
@@ -208,6 +217,9 @@ def evaluate(
         str(cache_dir),
         split,
     )
+    config.reward.new_emitter_bonus = new_emitter_bonus
+    config.reward.cost_tune = cost_tune
+    config.reward.shaping_weight = shaping_weight
     summary, per_episode = compare(
         config,
         split=split,
