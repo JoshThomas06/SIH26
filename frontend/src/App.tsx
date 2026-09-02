@@ -4,6 +4,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { InsightDialog } from "@/components/ui/insight-dialog";
 import AnalyticsPage from "@/pages/AnalyticsPage";
 import HomePage from "@/pages/HomePage";
+import LandingPage from "@/pages/LandingPage";
 import LearnPage from "@/pages/LearnPage";
 import LoginPage from "@/pages/LoginPage";
 import ProfilePage from "@/pages/ProfilePage";
@@ -15,6 +16,7 @@ function AnimatedRoutes() {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/landing_page" element={<LandingPage />} />
         <Route
           path="/"
           element={

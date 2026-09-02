@@ -1,0 +1,186 @@
+/*
+ * AEGIS landing page styles, merged from akr-landing-page/src/index.css.
+ *
+ * Everything is scoped under `.landing-root` so the landing page's design
+ * tokens can never leak into the main AEGIS app (which defines its own
+ * --background/--foreground/... on :root). Only @font-face declarations and a
+ * couple of :has(.landing-root) helpers live at the top level.
+ *
+ * NOTE: the Tailwind color tokens used by the landing markup (bg-clr-*, bg-surface,
+ * text-color-001, ...) are registered in src/index.css (@theme inline) because
+ * utilities are compiled from there.
+ */
+
+/* fonts */
+@font-face {
+  font-family: "Google Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local("Google Sans Regular"), local("GoogleSans-Regular"),
+    url(https://fonts.gstatic.com/s/productsans/v5/HYvgU2fE2nRJvZ5JFAumwegdm0LZdjqr5-oayXSOefg.woff2)
+      format("woff2");
+}
+
+@font-face {
+  font-family: "Google_Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local("Google Sans Regular"), local("GoogleSans-Regular"),
+    url(https://fonts.gstatic.com/s/productsans/v5/HYvgU2fE2nRJvZ5JFAumwegdm0LZdjqr5-oayXSOefg.woff2)
+      format("woff2");
+}
+
+@font-face {
+  font-family: "Google Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: local("Google Sans Medium"), local("GoogleSans-Medium"),
+    url(https://fonts.gstatic.com/s/productsans/v5/pxBdsQqlG-OIAAapbcP2Kxc8XzE_sH22t-I0Z8rV2o.woff2)
+      format("woff2");
+}
+
+@font-face {
+  font-family: "Google_Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: local("Google Sans Medium"), local("GoogleSans-Medium"),
+    url(https://fonts.gstatic.com/s/productsans/v5/pxBdsQqlG-OIAAapbcP2Kxc8XzE_sH22t-I0Z8rV2o.woff2)
+      format("woff2");
+}
+
+@font-face {
+  font-family: "Google Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local("Google Sans Bold"), local("GoogleSans-Bold"),
+    url(https://fonts.gstatic.com/s/productsans/v5/d9JI6TCqzll468206q71OgwJ-E1tZz7H1yGgPZ29h5Y.woff2)
+      format("woff2");
+}
+
+@font-face {
+  font-family: "Google_Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local("Google Sans Bold"), local("GoogleSans-Bold"),
+    url(https://fonts.gstatic.com/s/productsans/v5/d9JI6TCqzll468206q71OgwJ-E1tZz7H1yGgPZ29h5Y.woff2)
+      format("woff2");
+}
+
+@font-face {
+  font-family: "ABC Monument Grotesk Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/landing/assets/cloned/fonts/698219fbfc6e.woff2") format("woff2"),
+    url("/landing/assets/cloned/fonts/2c3898e960fc.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Univers Next Pro";
+  font-style: normal;
+  font-weight: 100;
+  font-display: swap;
+  src: url("/landing/assets/cloned/fonts/6a7682b138ba.woff2") format("woff2"),
+    url("/landing/assets/cloned/fonts/912fea0b9f25.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Univers Next Pro";
+  font-style: normal;
+  font-weight: 250;
+  font-display: swap;
+  src: url("/landing/assets/cloned/fonts/7133ea3e2c90.woff2") format("woff2"),
+    url("/landing/assets/cloned/fonts/3456ca9060ab.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Univers Next Pro";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("/landing/assets/cloned/fonts/791f37ddee1e.woff2") format("woff2"),
+    url("/landing/assets/cloned/fonts/9432564f4554.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Univers Next Pro";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/landing/assets/cloned/fonts/341c5c6bf9ad.woff2") format("woff2"),
+    url("/landing/assets/cloned/fonts/5d07ced467d5.woff") format("woff");
+}
+
+/* Hide native scrollbars only while the landing page is mounted. */
+html:has(.landing-root) {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  background-color: #000;
+}
+html:has(.landing-root) ::-webkit-scrollbar {
+  display: none;
+}
+
+/*
+ * The main app sets body-level typography/grid backgrounds and (in light mode)
+ * forces some colors via `!important` attribute selectors. Re-assert the white
+ * text on the landing page regardless of the user's app theme.
+ */
+html:has(.landing-root) .landing-root [class*="text-white"] {
+  color: #fff !important;
+}
+
+/*
+ * Landing page design tokens. Overriding them on this subtree (instead of
+ * :root) is what isolates the landing palette from the AEGIS app theme.
+ */
+.landing-root {
+  --background: rgb(0, 0, 0);
+  --foreground: rgb(238, 238, 238);
+  --primary: rgb(0, 255, 0);
+  --border: rgba(0, 0, 0, 0.4);
+  --muted-foreground: rgb(175, 175, 175);
+  --muted: rgb(75, 75, 75);
+  --surface: rgba(237, 237, 237, 0.2);
+  --color-001: rgb(32, 32, 32);
+  --color-002: rgb(125, 125, 125);
+  --clr-0: rgba(255, 255, 255, 0.2);
+  --clr-1: rgb(205, 205, 205);
+  --clr-2: rgb(50, 50, 50);
+  --clr-3: rgba(237, 237, 237, 0.4);
+  --clr-4: rgb(4, 4, 4);
+  --clr-5: rgb(38, 36, 3);
+  --clr-6: rgb(217, 207, 16);
+  --clr-7: rgba(205, 205, 205, 0.984);
+  --clr-8: rgb(136, 129, 10);
+  --clr-9: rgba(0, 255, 0, 0.14);
+  --clr-10: rgb(223, 213, 17);
+  --clr-11: rgb(16, 16, 16);
+  --clr-12: rgb(234, 234, 234);
+  --clr-13: rgb(240, 229, 18);
+  --clr-14: rgb(15, 14, 1);
+  --clr-15: rgba(205, 205, 205, 0.016);
+  --clr-16: rgb(120, 114, 9);
+  --clr-17: rgba(0, 255, 0, 0.16);
+}
+
+.landing-root {
+  font-family: "Google Sans", "Google_Sans", sans-serif;
+  background: #000;
+  color: var(--foreground);
+  letter-spacing: normal;
+  overflow-x: clip;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Match the standalone site's media display default (was inline-block). */
+.landing-root :where(img, picture, video, canvas, svg) {
+  display: inline-block;
+}
