@@ -1,0 +1,267 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --color-destructive-foreground: var(--destructive-foreground);
+}
+
+:root {
+  --background: #070908;
+  --foreground: #ffffff;
+  --card: #0d1210;
+  --card-foreground: #e4e4e7;
+  --popover: #0b100e;
+  --popover-foreground: #e4e4e7;
+  --primary: #e4e4e7;
+  --primary-foreground: #040404;
+  --secondary: #0b100e;
+  --secondary-foreground: #e4e4e7;
+  --muted: #0b100e;
+  --muted-foreground: #d4d4d8;
+  --accent: #15221b;
+  --accent-foreground: #ffffff;
+  --destructive: #ff2a6d;
+  --destructive-foreground: #ffffff;
+  --border: #24352b;
+  --input: #2b4435;
+  --ring: #00ff66;
+  --phosphor: #00ff66;
+  --obsidian: #040404;
+  --graphite: #0d0d0d;
+}
+
+* {
+  border-color: var(--border);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  letter-spacing: 0.01em;
+  background-image: linear-gradient(rgba(0, 255, 102, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 102, 0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+button,
+input {
+  font-family: inherit;
+}
+
+::selection {
+  background: var(--phosphor);
+  color: #031108;
+}
+
+@keyframes scanline {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(100vh); }
+}
+
+@keyframes signal-pulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+
+.signal-pulse {
+  animation: signal-pulse 2.4s ease-in-out infinite;
+}
+
+.scanline-overlay::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: rgba(0, 255, 102, 0.32);
+  box-shadow: 0 0 18px rgba(0, 255, 102, 0.35);
+  animation: scanline 7s linear infinite;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+html.theme-light {
+  --background: #c4c4cc;
+  --foreground: #18181b;
+  --card: #d6d6dc;
+  --card-foreground: #18181b;
+  --popover: #d0d0d6;
+  --popover-foreground: #18181b;
+  --primary: #27272a;
+  --primary-foreground: #f4f4f5;
+  --secondary: #c9c9d0;
+  --secondary-foreground: #18181b;
+  --muted: #bcbcc4;
+  --muted-foreground: #27272a;
+  --accent: #b7b7bf;
+  --accent-foreground: #18181b;
+  --border: #9a9aa3;
+  --input: #9a9aa3;
+  --obsidian: #c4c4cc;
+  --graphite: #ceced4;
+}
+
+html.theme-light [class*="bg-[#040404]"] {
+  background-color: #c4c4cc !important;
+}
+html.theme-light [class*="bg-[#121212]"] {
+  background-color: #d6d6dc !important;
+}
+html.theme-light [class*="bg-[#0d0d0d]"],
+html.theme-light [class*="bg-[#0a0a0a]"] {
+  background-color: #d6d6dc !important;
+}
+html.theme-light .sj-fill {
+  color: #18181b;
+}
+html.theme-light .sj-fill:hover,
+html.theme-light .sj-fill.is-active {
+  color: #040404;
+}
+html.theme-light [class*="text-white"] {
+  color: #18181b !important;
+}
+
+html.theme-light .crt-persist,
+html.theme-light .crt-persist [class*="bg-[#040404]"] {
+  background-color: #040404 !important;
+  color: #e4e4e7 !important;
+}
+html.theme-light .crt-persist [class*="text-white"],
+html.theme-light .crt-persist [class*="text-[#a1a1aa]"],
+html.theme-light .crt-persist [class*="text-[#e4e4e7]"] {
+  color: #d4d4d8 !important;
+}
+
+html.high-contrast {
+  --muted-foreground: #e4e4e7;
+  --border: #a1a1aa;
+}
+html.theme-light.high-contrast {
+  --muted-foreground: #111827;
+  --border: #3f3f46;
+  --foreground: #09090b;
+}
+
+html[data-reduce-motion="true"] .animate-pulse {
+  animation: none !important;
+}
+
+.sj-fill {
+  position: relative;
+  z-index: 0;
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    color 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.sj-fill > * {
+  position: relative;
+  z-index: 1;
+}
+.sj-fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: #e4e4e7;
+  transform: translate3d(0, 101%, 0);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.sj-fill:hover::after,
+.sj-fill.is-active::after {
+  transform: translate3d(0, 0, 0);
+}
+.sj-fill:hover,
+.sj-fill.is-active {
+  color: #040404;
+  border-color: #e4e4e7;
+}
+.sj-fill-phosphor::after {
+  background: #00ff66;
+}
+.sj-fill-phosphor:hover,
+.sj-fill-phosphor.is-active {
+  color: #021a0a;
+  border-color: #00ff66;
+}
+html[data-reduce-motion="true"] .sj-fill::after {
+  transition: none;
+}
+
+.aegis-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #525252 #121212;
+}
+.aegis-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.aegis-scroll::-webkit-scrollbar-track {
+  background: #121212;
+}
+.aegis-scroll::-webkit-scrollbar-thumb {
+  background: #525252;
+  border-radius: 999px;
+}
+
+@media (max-width: 768px) {
+  #aegis-scan-board {
+    display: flex;
+    min-height: 0 !important;
+    flex-direction: column;
+    gap: 12px;
+    height: auto !important;
+  }
+  #aegis-scan-board > .aegis-scan-widget {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 280px;
+  }
+}
