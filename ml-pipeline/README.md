@@ -170,10 +170,25 @@ uv run ewscan train --device cuda:1                       # pin to a specific GP
 
 Startup logs the placement: `actors: 2 on ['cuda:0', 'cuda:1'] | learner on cuda:0`.
 Because the Q-network is small, the bottleneck is environment stepping, not GPU compute —
-parallel actors add ~2× experience diversity and ~1.5–1.8× wall-clock speedup (thread-based,
-so both GPUs genuinely overlap; this is the appropriate use of multiple GPUs here, not
-DDP/data-parallel, which would lose to sync overhead at this batch size). The `wrapt`
-sitecustomize error printed by Kaggle notebooks is benign.
+parallel actors add ~2× experience diversity and genuinely overlap both GPUs; this is the
+appropriate use of multiple GPUs here, not DDP/data-parallel, which would lose to sync
+overhead at this batch size. The `wrapt` sitecustomize error printed by Kaggle notebooks is
+benign.
+
+Training-intensity guarantees (these matter — an unpaced learner was observed to collapse
+into a degenerate periodic-sweep policy on Kaggle, which then aliased against periodic
+emitters and intercepted nothing):
+
+- **Paced replay ratio**: the learner takes exactly one gradient step per `--train-freq`
+  (default 4) collected env steps, drained fully before the run exits — the same regime as
+  single-threaded training, so `grad_steps` in `train_config.json` should read
+  `(total_timesteps − learning_starts) / train_freq` regardless of actor count.
+- **Best-checkpoint safety net**: `model_best.pt` (highest trailing-10-episode mean reward)
+  is saved alongside `model_final.pt`. If the final policy degraded, evaluate the best one:
+
+```bash
+uv run ewscan evaluate --model outputs/rl/model_best.pt --episodes 25
+```
 
 ## Colab / Kaggle GPU training
 

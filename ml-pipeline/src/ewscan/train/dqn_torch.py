@@ -206,41 +206,67 @@ def train_dqn(config: EnvConfig, tc: TrainConfig) -> Path:
         t.start()
 
     grad_steps = 0
+    last_trained_step = tc.learning_starts
     last_sync_step = 0
     last_log_step = 0
+    best_mean_reward = -float("inf")
     monitor_rows: list[str] = ["r,l,actor"]
-    while shared.global_step < tc.total_timesteps:
-        if buffer.size >= tc.learning_starts:
-            s_obs, s_act, s_rew, s_next = buffer.sample(tc.batch_size)
-            t_obs = torch.as_tensor(s_obs, device=learner_device)
-            t_next = torch.as_tensor(s_next, device=learner_device)
-            with torch.no_grad():
-                max_next = target(t_next).max(dim=1).values
-                target_q = torch.as_tensor(s_rew, device=learner_device) + tc.gamma * max_next
-            q_all = net(t_obs)
-            q_sel = q_all.gather(
-                1, torch.as_tensor(s_act, device=learner_device).view(-1, 1)
-            ).squeeze(1)
-            loss = nn.functional.smooth_l1_loss(q_sel, target_q)
-            opt.zero_grad()
-            loss.backward()
-            nn.utils.clip_grad_norm_(net.parameters(), 10.0)
-            opt.step()
-            grad_steps += 1
-            if grad_steps % tc.target_update_interval == 0:
-                target.load_state_dict(net.state_dict())
-        else:
-            time.sleep(0.005)
+    while shared.global_step < tc.total_timesteps or (
+        buffer.size >= tc.learning_starts and shared.global_step - last_trained_step >= tc.train_freq
+    ):
         step_now = shared.global_step
+        owed = 0
+        if buffer.size >= tc.learning_starts:
+            owed = (step_now - last_trained_step) // tc.train_freq
+        if owed > 0:
+            for _ in range(min(owed, 64)):
+                s_obs, s_act, s_rew, s_next = buffer.sample(tc.batch_size)
+                t_obs = torch.as_tensor(s_obs, device=learner_device)
+                t_next = torch.as_tensor(s_next, device=learner_device)
+                with torch.no_grad():
+                    max_next = target(t_next).max(dim=1).values
+                    target_q = torch.as_tensor(s_rew, device=learner_device) + tc.gamma * max_next
+                q_all = net(t_obs)
+                q_sel = q_all.gather(
+                    1, torch.as_tensor(s_act, device=learner_device).view(-1, 1)
+                ).squeeze(1)
+                loss = nn.functional.smooth_l1_loss(q_sel, target_q)
+                opt.zero_grad()
+                loss.backward()
+                nn.utils.clip_grad_norm_(net.parameters(), 10.0)
+                opt.step()
+                grad_steps += 1
+                last_trained_step += tc.train_freq
+                if grad_steps % tc.target_update_interval == 0:
+                    target.load_state_dict(net.state_dict())
+        else:
+            time.sleep(0.001)
         if step_now - last_sync_step >= tc.sync_interval:
             _publish_weights(net, shared)
             last_sync_step = step_now
+            with shared.lock:
+                recent_rewards = [r for _, _, r in shared.episodes[-10:]]
+            if len(recent_rewards) >= 5:
+                mean_reward = float(np.mean(recent_rewards))
+                if mean_reward > best_mean_reward:
+                    best_mean_reward = mean_reward
+                    torch.save(
+                        {
+                            "state_dict": net.state_dict(),
+                            "n_bands": config.spectrum.n_bands,
+                            "hidden": 64,
+                            "config": json.loads(config.model_dump_json()),
+                            "mean_reward": mean_reward,
+                            "at_global_step": step_now,
+                        },
+                        out / "model_best.pt",
+                    )
         if step_now - last_log_step >= 50_000:
             with shared.lock:
                 recent = [r for _, _, r in shared.episodes[-10:]] or [0.0]
             print(
                 f"step {step_now}: grad_steps={grad_steps} buffer={buffer.size} "
-                f"mean_ep_reward(last10)={np.mean(recent):.1f}",
+                f"mean_ep_reward(last10)={np.mean(recent):.1f} best={best_mean_reward:.1f}",
                 flush=True,
             )
             torch.save(
@@ -280,6 +306,7 @@ def train_dqn(config: EnvConfig, tc: TrainConfig) -> Path:
                 "train": json.loads(tc.model_dump_json()),
                 "devices": [str(d) for d in devices],
                 "n_actors": n_actors,
+                "grad_steps": grad_steps,
             },
             indent=2,
         )
@@ -287,6 +314,11 @@ def train_dqn(config: EnvConfig, tc: TrainConfig) -> Path:
     recent = [r for _, _, r in episodes[-10:]] or [0.0]
     print(
         f"episodes: {len(episodes)} | grad_steps: {grad_steps} | final mean reward (last 10): {np.mean(recent):.1f}",
+        flush=True,
+    )
+    print(
+        "saved model_final.pt (end of training) and model_best.pt (best trailing episode mean) | "
+        f"if the final policy degraded, evaluate with --model {out / 'model_best.pt'}",
         flush=True,
     )
     return model_path

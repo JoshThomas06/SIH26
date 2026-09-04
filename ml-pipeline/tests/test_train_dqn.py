@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import numpy as np
 import pytest
 
@@ -82,5 +84,7 @@ def test_train_dqn_two_actors_smoke(tmp_path):
     monitor = (tmp_path / "rl" / "monitor.csv").read_text().strip().splitlines()
     assert monitor[0] == "r,l,actor"
     assert len(monitor) > 1
-    cfg = (tmp_path / "rl" / "train_config.json").read_text()
-    assert '"n_actors": 2' in cfg
+    meta = json.loads((tmp_path / "rl" / "train_config.json").read_text())
+    assert meta["n_actors"] == 2
+    assert meta["grad_steps"] <= tc.total_timesteps // tc.train_freq + 2 * tc.n_actors + 10
+    assert (tmp_path / "rl" / "model_best.pt").exists()
