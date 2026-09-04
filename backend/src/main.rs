@@ -115,7 +115,7 @@ async fn main() {
         .layer(cors)
         .with_state(state);
 
-    let bind = "0.0.0.0:8010";
+    let bind = "0.0.0.0:10000";
     match tokio::net::TcpListener::bind(bind).await {
         Ok(listener) => {
             info!(bind, "server listening");

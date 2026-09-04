@@ -31,6 +31,7 @@ impl Default for Settings {
             cors_origins: vec![
                 "http://localhost:5173".to_string(),
                 "http://127.0.0.1:5173".to_string(),
+                "https://sih.innosolve.in".to_string(),
             ],
             token_ttl_seconds: 12 * 60 * 60,
             token_secret: "aegis-sih26055-demo-secret".to_string(),
