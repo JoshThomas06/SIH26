@@ -32,9 +32,7 @@ def make_synthetic_pdw(
         elif kind == "hopping":
             hops = rng.integers(2, 5)
             bands = rng.choice(n_bands, size=hops, replace=False)
-            cf = np.array(
-                [(bands[i % hops] + 0.5) * 18000.0 / n_bands for i in range(len(toa))]
-            )
+            cf = np.array([(bands[i % hops] + 0.5) * 18000.0 / n_bands for i in range(len(toa))])
         else:
             band = int(rng.integers(n_bands))
             cf = np.full(len(toa), (band + 0.5) * 18000.0 / n_bands)

@@ -70,6 +70,8 @@ class TrainConfig(BaseModel):
     target_update_interval: int = 1000
     learning_starts: int = 5000
     exploration_fraction: float = 0.15
+    n_actors: int = 0
+    sync_interval: int = 500
     seed: int = 0
     device: str = "auto"
     eval_freq: int = 10_000

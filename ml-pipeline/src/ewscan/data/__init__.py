@@ -6,8 +6,8 @@ from ewscan.data.occupancy import EMITTER_STAT_NAMES, EpisodeGrid, build_grid
 from ewscan.data.synthetic import make_synthetic_grid, make_synthetic_pdw
 
 __all__ = [
-    "PDW",
     "EMITTER_STAT_NAMES",
+    "PDW",
     "EpisodeGrid",
     "build_cache",
     "build_grid",

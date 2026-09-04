@@ -14,10 +14,14 @@ def resolve_hf_token() -> str | None:
     return os.getenv("HF_TOKEN") or os.getenv("HUGGING_FACE_TOKEN")
 
 
-def list_split_files(mode: str = "scan", split: str = "train", token: str | None = None) -> list[str]:
+def list_split_files(
+    mode: str = "scan", split: str = "train", token: str | None = None
+) -> list[str]:
     api = HfApi(token=token)
     prefix = h5_pattern(mode, split).removesuffix("*.h5")
-    files = [f for f in api.list_repo_files(DATASET_ID, repo_type="dataset") if f.startswith(prefix)]
+    files = [
+        f for f in api.list_repo_files(DATASET_ID, repo_type="dataset") if f.startswith(prefix)
+    ]
     return sorted(files)
 
 

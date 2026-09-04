@@ -150,6 +150,8 @@ def train(
     new_emitter_bonus: float = typer.Option(3.0),
     cost_tune: float = typer.Option(0.02),
     shaping_weight: float = typer.Option(0.3),
+    n_actors: int = typer.Option(0, help="parallel collector threads; 0 = one per GPU (max 4)"),
+    device: str = typer.Option("auto", help="auto | cuda | cuda:0 | cpu"),
     seed: int = typer.Option(0),
     out_dir: Path = typer.Option(Path("outputs/rl")),
 ) -> None:
@@ -174,6 +176,8 @@ def train(
         algo=algo,
         total_timesteps=timesteps,
         n_envs=n_envs,
+        n_actors=n_actors,
+        device=device,
         seed=seed,
         train_split=train_split,
         eval_split=eval_split,

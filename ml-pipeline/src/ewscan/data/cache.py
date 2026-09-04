@@ -49,7 +49,9 @@ def build_cache(
     return out
 
 
-def load_split(cache_dir: str | Path, split: str, max_grids: int | None = None) -> list[EpisodeGrid]:
+def load_split(
+    cache_dir: str | Path, split: str, max_grids: int | None = None
+) -> list[EpisodeGrid]:
     paths = sorted(Path(cache_dir).glob(f"{split}/*.npz"))
     if max_grids is not None:
         paths = paths[:max_grids]

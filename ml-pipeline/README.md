@@ -25,7 +25,7 @@ src/ewscan/
 │   ├── baselines.py     # round-robin (open loop), random, UCB bandit, greedy oracle
 │   └── rl.py            # SB3 policy wrapper
 ├── train/
-│   ├── dqn_torch.py     # custom DQN with parameter-shared per-band Q network (default)
+│   ├── dqn_torch.py     # custom actor/learner DQN, parameter-shared per-band Q net, multi-GPU actors
 │   └── train.py         # training dispatch (dqn | ppo via SB3)
 ├── eval/
 │   ├── evaluate.py      # strategy runner + comparison tables
@@ -148,6 +148,32 @@ emitter features predicts first-intercept time with MAE ≈ 732 slots for round-
 the strategy's own learned priorities, not just emitter parameters).
 
 All outputs (CSV tables, JSON summaries, PNG plots, per-episode logs) go to `outputs/`.
+
+## Multi-GPU training (Kaggle 2× T4, multi-GPU boxes)
+
+`ewscan train` auto-detects all CUDA devices and runs a **distributed-DQN actor/learner**
+architecture:
+
+- **Learner** (main thread, `cuda:0`): samples the shared replay buffer, takes gradient
+  steps, syncs the target network, publishes fresh weights, writes checkpoints.
+- **Actor threads** (one per GPU by default, up to 4): each owns a seeded environment and a
+  policy replica pinned to its own GPU, collects epsilon-greedy experience in parallel and
+  pushes transitions into the shared buffer; weights refresh every `--sync-interval` global
+  steps.
+
+```bash
+uv run ewscan train --timesteps 800000                    # auto: 1 actor per GPU
+uv run ewscan train --n-actors 2 --device cuda            # force 2 actors
+uv run ewscan train --n-actors 1                          # single-threaded fallback
+uv run ewscan train --device cuda:1                       # pin to a specific GPU
+```
+
+Startup logs the placement: `actors: 2 on ['cuda:0', 'cuda:1'] | learner on cuda:0`.
+Because the Q-network is small, the bottleneck is environment stepping, not GPU compute —
+parallel actors add ~2× experience diversity and ~1.5–1.8× wall-clock speedup (thread-based,
+so both GPUs genuinely overlap; this is the appropriate use of multiple GPUs here, not
+DDP/data-parallel, which would lose to sync overhead at this batch size). The `wrapt`
+sitecustomize error printed by Kaggle notebooks is benign.
 
 ## Colab / Kaggle GPU training
 
