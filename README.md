@@ -206,9 +206,14 @@ The Scan console sliders write the same knobs through `POST /api/v1/scheduler/co
 ```
 backend/app/core/     scheduler, runtime, archive, config
 backend/app/data/     RF emulator
+backend-rust/         Axum port of the same API (port 10000; optional A/B)
+ml-pipeline/          TSRD / Gym DQN trainer (offline; not on the demo hot path)
 frontend/src/pages/   briefing, scan, analytics, learn, profile
 frontend/src/components/tactical/  CRT, spectrum, waterfall, HUD
 SIMULATION_LOGIC.md   reference mechanics (32-band source; adapted to 16)
+ML_PIPELINES.md       generic EW scan vs algorithms actually trained
+RUST_BACKEND_MAP.md   FastAPI ↔ Rust function map
+BRANCH_ANALYSIS.md    what was taken from main vs what stays on this branch
 ```
 
-Planning documents at the repo root are not required to run the demo.
+Default demo remains FastAPI on **8010**. Do not replace `backend/` with Rust in-place. Planning documents at the repo root are not required to run the demo.
